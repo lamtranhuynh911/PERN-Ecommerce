@@ -1,0 +1,7 @@
+// frontend/public/env-config.js
+window._env_ = {
+  VITE_API_TARGET: "http://localhost:9000",
+  VITE_GOOGLE_CLIENT_ID: "926599606710-feabn75ggmr1ofggru6mdiupq1vtl4qr.apps.googleusercontent.com",
+  VITE_STRIPE_PUB_KEY: "pk_test_51SnfZ7Ho4mzcNxtWRuqKSjP7gya7ZeV646uV5KxEY1riC9CRtIYFa0ulQ2NzqSigdWwd27QFLEtis1ymc8sJyhfJ00utRylTB6",
+  VITE_PAYSTACK_PUB_KEY: "pk_test_uuiduw984x4h4xx41489j94n"
+};
