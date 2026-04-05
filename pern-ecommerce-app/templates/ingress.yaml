@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pern-ingress
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    # Templated Static IP and SSL Cert
+    kubernetes.io/ingress.global-static-ip-name: {{ .Values.ingress.staticIpName | quote }}
+    networking.gke.io/managed-certificates: {{ .Values.ingress.sslCertName | quote }}
+    kubernetes.io/ingress.allow-http: "false"
+spec:
+  rules:
+  # Templated Host Domain
+  - host: {{ .Values.domain }}
+  - http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-svc
+            port:
+              number: {{ .Values.backend.service.port }}
+      
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            # Templated Frontend Service name
+            name: {{ .Values.ingress.frontend.serviceName }}
+            port:
+              number: {{ .Values.ingress.frontend.servicePort }}

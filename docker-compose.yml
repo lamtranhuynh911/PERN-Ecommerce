@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  server:
+    image: pern-ecommerce-server
+    container_name: pern-ecommerce-server
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    env_file:
+      - ./server/.env
+    
+  client:
+    image: pern-ecommerce-client
+    container_name: pern-ecommerce-client
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    depends_on:
+      - server

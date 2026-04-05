@@ -1,0 +1,40 @@
+name: Frontend CI - Quality
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'client/**'
+      - '.github/workflows/ci-frontend.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'client/**'
+      - '.github/workflows/ci-frontend.yml'
+
+jobs:
+  lint-frontend:
+    name: Frontend Lint & Format
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./client
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: './client/package-lock.json'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Enforce Code Formatting (Prettier)
+        run: npm run format:check
+
+      - name: Run Static Code Analysis (ESLint)
+        run: npm run lint

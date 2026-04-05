@@ -1,0 +1,8 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: {{ .Values.ingress.sslCertName }}
+spec:
+  domains:
+    # Templated domain
+    - {{ .Values.domain }}

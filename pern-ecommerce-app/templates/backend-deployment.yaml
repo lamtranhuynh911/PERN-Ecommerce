@@ -1,0 +1,146 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app.kubernetes.io/name: ecommerce-api
+    app.kubernetes.io/part-of: pern-shop
+    app.kubernetes.io/component: backend
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ecommerce-api
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ecommerce-api
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/part-of: pern-shop
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000
+      containers:
+        - name: api-server
+          # Templated Image Repository and Tag
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: {{ .Values.backend.service.targetPort }}
+              protocol: TCP
+          
+          # Templated Resources
+          resources:
+            requests:
+              cpu: {{ .Values.backend.resources.requests.cpu | quote }}
+              memory: {{ .Values.backend.resources.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.backend.resources.limits.cpu | quote }}
+              memory: {{ .Values.backend.resources.limits.memory | quote }}
+
+          env:
+            - name: PORT
+              value: {{ .Values.backend.service.targetPort | quote }}
+            - name: NODE_ENV
+              value: "production"
+            # Explicitly mapping from the templated Secret Name
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: host
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: port
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: dbname
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: password
+            - name: SMTP_FROM
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: smtp-from
+            - name: SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: smtp-user
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: stripe-secret-key
+            - name: OAUTH_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: oauth-client-id
+            - name: OAUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: oauth-client-secret
+            - name: OAUTH_REFRESH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: oauth-refresh-token
+            - name: CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: client-id
+            - name: CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: client-secret
+            - name: REFRESH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: refresh-token
+            - name: SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: jwt-secret
+            - name: REFRESH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.k8sSecretName }}
+                  key: jwt-refresh-secret
+
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.backend.healthCheck.requestPath }}
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.backend.healthCheck.requestPath }}
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3

@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  # This is an ephemeral test database
+  postgres-test:
+    image: postgres:15-alpine # Supabase uses Postgres 15
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpassword
+      POSTGRES_DB: testdb
+    ports:
+      # Map container port 5432 to host port 54322 
+      # (to avoid conflict if you already have a local dev DB running)
+      - "54322:5432"
+    volumes:
+      - ./supabase/migrations:/docker-entrypoint-initdb.d

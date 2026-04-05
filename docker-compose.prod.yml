@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  server:
+    build:
+      target: prod
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "9000:9000"  # Map cổng 9000 của host tới cổng 9000 của container để truy cập API server từ bên ngoài
+
+  client:
+    build:
+      target: prod
+    environment:
+      - VITE_API_TARGET=http://server:9000
+      - VITE_GOOGLE_CLIENT_ID=926599606710-feabn75ggmr1ofggru6mdiupq1vtl4qr.apps.googleusercontent.com
+      - VITE_STRIPE_PUB_KEY=pk_test_51SnfZ7Ho4mzcNxtWRuqKSjP7gya7ZeV646uV5KxEY1riC9CRtIYFa0ulQ2NzqSigdWwd27QFLEtis1ymc8sJyhfJ00utRylTB6
+      - VITE_PAYSTACK_PUB_KEY=pk_test_uuiduw984x4h4xx41489j94n
+    ports:
+      - "8080:8080"  # Map cổng 8080 của host tới cổng 80 của container để truy cập frontend từ bên ngoài
+    restart: always

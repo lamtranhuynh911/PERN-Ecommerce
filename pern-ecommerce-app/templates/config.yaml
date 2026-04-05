@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pern-config
+data:
+  VITE_GOOGLE_CLIENT_ID: {{ .Values.frontendConfig.googleClientId | quote }}
+  VITE_STRIPE_PUB_KEY: {{ .Values.frontendConfig.stripePubKey | quote }}
+  VITE_PAYSTACK_PUB_KEY: {{ .Values.frontendConfig.paystackPubKey | quote }}
