@@ -1,9 +1,22 @@
-output "kubernetes_cluster_name" {
-  value       = google_container_cluster.pern_cluster.name
-  description = "The name of the provisioned GKE cluster"
+# ==============================================================================
+# ROOT OUTPUTS.TF
+# ==============================================================================
+
+output "resource_group_name" {
+  value = module.base.rg_name
 }
 
-output "artifact_registry_url" {
-  value       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.pern_docker_repo.repository_id}"
-  description = "The base URL for pushing Docker images"
+output "acr_login_server" {
+  description = "The URL of the Container Registry"
+  value       = module.acr.login_server
+}
+
+output "aks_cluster_name" {
+  value = module.aks.kubernetes_cluster_name
+}
+
+# Important for CI/CD: This is needed to connect to the cluster
+output "aks_kube_config" {
+  value     = module.aks.kube_config
+  sensitive = true
 }

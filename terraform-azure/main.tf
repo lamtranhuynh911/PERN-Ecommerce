@@ -1,34 +1,80 @@
-# 1. Tạo Resource Group (Bắt buộc trong Azure)
-resource "azurerm_resource_group" "pern_rg" {
-  name     = "pern-ecommerce-rg"
-  location = "Southeast Asia" # Tương đương asia-southeast1
+# ==============================================================================
+# ROOT MAIN.TF - AZURE INFRASTRUCTURE FOR PERN ECOMMERCE
+# ==============================================================================
+
+# 1. Local Values for Naming Conventions
+locals {
+  project_prefix = "pernecommerce"
 }
 
-# 2. Tạo Azure Container Registry (ACR) để lưu Docker Image
-resource "azurerm_container_registry" "pern_acr" {
-  name                = "pernecommerceacr" # Tên ACR phải viết liền, không ký tự đặc biệt, và là DUY NHẤT trên toàn cầu
-  resource_group_name = azurerm_resource_group.pern_rg.name
-  location            = azurerm_resource_group.pern_rg.location
-  sku                 = "Basic" # Gói rẻ nhất cho test
-  admin_enabled       = true
+# ==============================================================================
+# MODULE DECLARATIONS
+# ==============================================================================
+
+# 2. Base Module (Resource Group)
+module "base" {
+  source       = "./modules/base"
+  
+  project_name = local.project_prefix
+  environment  = var.environment
+  location     = var.location
 }
 
-# 3. Tạo Azure Kubernetes Service (AKS)
-resource "azurerm_kubernetes_cluster" "pern_aks" {
-  name                = "pern-aks-cluster"
-  location            = azurerm_resource_group.pern_rg.location
-  resource_group_name = azurerm_resource_group.pern_rg.name
-  dns_prefix          = "pern-aks"
+# 3. Azure Container Registry (ACR) Module
+module "acr" {
+  source              = "./modules/acr"
+  
+  registry_name       = "${local.project_prefix}acr${var.environment}" 
+  rg_name = module.base.rg_name
+  rg_location            = module.base.rg_location
+  sku                 = "Basic"
+}
 
-  # Cấu hình Node Pool (Worker nodes)
-  default_node_pool {
-    name       = "default"
-    node_count = 1
-    vm_size    = "Standard_B2s" # Dòng máy ảo giá rẻ, hợp cho việc học
+# 4. Azure Kubernetes Service (AKS) Module
+module "aks" {
+  source              = "./modules/aks"
+  
+  cluster_name        = "${local.project_prefix}-aks-${var.environment}"
+  dns_prefix          = "${local.project_prefix}-k8s"
+  
+  rg_name = module.base.rg_name
+  rg_location            = module.base.rg_location
+  acr_id              = module.acr.acr_id
+  
+  node_count          = var.node_count
+  vm_size             = "Standard_B2s" 
+}
+
+# 5. Azure Key Vault Module
+module "keyvault" {
+  source              = "./modules/keyvault"
+  
+  keyvault_name       = "${local.project_prefix}kv${var.environment}"
+  resource_group_name = module.base.rg_name
+  location            = module.base.rg_location
+}
+
+# ==============================================================================
+# KUBERNETES RESOURCES
+# ==============================================================================
+
+# Create a ConfigMap to store non-secret application configurations
+resource "kubernetes_config_map" "backend_config" {
+  metadata {
+    name      = "${local.project_prefix}-backend-config-${var.environment}"
+    namespace = "default"
   }
 
-  # Azure yêu cầu khai báo identity (SystemAssigned là dễ nhất)
-  identity {
-    type = "SystemAssigned"
+  data = {
+    POSTGRES_HOST = var.db_host
+    POSTGRES_PORT = tostring(var.db_port) # K8s ConfigMap expects string values
+    POSTGRES_USER = var.db_user
+    POSTGRES_DB   = var.db_name
+    PORT          = tostring(var.app_port)
+    SMTP_FROM     = var.smtp_from
+    SMTP_USER     = var.smtp_user
   }
+
+  # Ensure the ConfigMap is only created AFTER the AKS cluster is fully provisioned
+  depends_on = [module.aks]
 }

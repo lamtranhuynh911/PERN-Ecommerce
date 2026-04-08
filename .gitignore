@@ -3,9 +3,8 @@ node_modules
 *.vscode
 client/.eslintcache
 
-# Local Netlify folder
-.netlify
 dist
 client/public/sitemap.xml
 .terraform/
 .terraform.lock.hcl
+.terraform.tfstate
