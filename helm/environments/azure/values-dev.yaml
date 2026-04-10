@@ -1,0 +1,74 @@
+# Azure Development Environment Values
+# Override root values for dev environment on Azure
+# Matches Terraform Azure Dev configuration
+
+global:
+  domain: "dev-ecommerce.thltunneling.dpdns.org"
+  environment: "dev"
+  cloudProvider: "azure"
+
+namespace: "pernecommerce-dev"
+
+backend:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "300m"
+      memory: "512Mi"
+  image:
+    repository: "pernecommerceacrdev.azurecr.io/pernecommerce-server"
+    pullPolicy: IfNotPresent
+    tag: "dev-latest"
+
+frontend:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "128Mi"
+    limits:
+      cpu: "150m"
+      memory: "256Mi"
+  image:
+    repository: "pernecommerceacrdev.azurecr.io/pernecommerce-client"
+    pullPolicy: IfNotPresent
+    tag: "dev-latest"
+
+azure:
+  projectPrefix: "pernecommerce"
+  environment: "dev"
+  location: "southeastasia"
+  resourceGroup: "pernecommerce-rg" # Terraform managed
+  cluster:
+    name: "pernecommerce-aks-dev" # Terraform: pernecommerce-aks-dev
+    dnsPrefix: "pernecommerce-k8s"
+    location: "southeastasia"
+    resourceGroup: "pernecommerce-rg"
+  acr:
+    loginServer: "pernecommerceacrdev.azurecr.io" # Terraform: pernecommerceacrdev
+  keyVault:
+    name: "pernecommerce-kv-dev" # Terraform managed
+    resourceGroup: "pernecommerce-rg"
+    location: "southeastasia"
+  managedIdentity:
+    name: "pernecommerce-identity-dev"
+    resourceGroup: "pernecommerce-rg"
+
+config:
+  googleClientId: "YOUR_DEV_GOOGLE_CLIENT_ID"
+  stripePubKey: "pk_test_dev_key"
+  paystackPubKey: "pk_test_dev_key"
+  apiBaseUrl: "https://api.dev-ecommerce.example.com"
+
+secrets:
+  externalSecrets:
+    secrets:
+      - name: "database-connection-string"
+        key: "dev-db-connection-string"
+
+podIdentity:
+  enabled: true
+  name: "pern-workload-dev"

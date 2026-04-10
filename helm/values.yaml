@@ -1,0 +1,130 @@
+# PERN E-commerce Platform - Helm Values
+# Base values - Override in environment-specific values files
+
+# Enable/Disable core chart
+core:
+  enabled: true
+
+# Global settings shared across all deployments
+global:
+  domain: "ecommerce.example.com"
+  environment: "dev" # dev or prod
+  cloudProvider: "gcp" # gcp or azure
+  
+# Application namespace
+namespace: "default"
+
+# Backend API Configuration
+backend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: "docker-registry/pern-ecommerce-server"
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  
+  resources:
+    requests:
+      cpu: "150m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 9000
+  
+  probes:
+    liveness:
+      path: "/health"
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readiness:
+      path: "/health"
+      initialDelaySeconds: 10
+      periodSeconds: 5
+
+# Frontend Application Configuration
+frontend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: "docker-registry/pern-ecommerce-client"
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "300m"
+      memory: "256Mi"
+  
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+
+# Ingress Configuration
+ingress:
+  enabled: true
+  className: "nginx" # Will be overridden by platform (gce for GCP, azure for Azure)
+  annotations: {}
+  
+  hosts:
+    - host: "ecommerce.example.com"
+      paths:
+        - path: "/"
+          pathType: Prefix
+        - path: "/api"
+          pathType: Prefix
+  
+  tls:
+    enabled: true
+    certificateName: "pern-cert"
+
+# Application Configuration (Frontend environment variables)
+config:
+  googleClientId: "YOUR_GOOGLE_CLIENT_ID"
+  stripePubKey: "YOUR_STRIPE_PUB_KEY"
+  paystackPubKey: "YOUR_PAYSTACK_PUB_KEY"
+  apiBaseUrl: "https://api.ecommerce.example.com"
+
+# Secret Management Configuration
+secrets:
+  provider: "gcp" # gcp or azure
+  refreshInterval: "24h"
+  k8sSecretName: "app-secrets"
+  
+  # GCP-specific
+  gcp:
+    enabled: false
+    projectId: "your-project-id"
+    secretName: "pern-app-secrets"
+  
+  # Azure-specific  
+  azure:
+    enabled: false
+    keyVaultName: "pern-keyvault"
+    tenantId: "your-tenant-id"
+    clientId: "your-client-id"
+
+# PostgreSQL Database Configuration
+database:
+  enabled: false
+  host: "postgres.example.com"
+  port: 5432
+  name: "pern_ecommerce"
+  sslMode: "require"
+
+# Security Context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 2000
+  capabilities:
+    drop:
+      - ALL

@@ -1,0 +1,28 @@
+{{- if .Values.podIdentity.enabled }}
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentity
+metadata:
+  name: {{ .Values.podIdentity.name }}
+  namespace: {{ .Values.namespace | default "default" }}
+  labels:
+    app.kubernetes.io/name: pern-ecommerce
+    app.kubernetes.io/component: identity
+    app.kubernetes.io/part-of: pern-shop
+spec:
+  type: 0 # Managed Identity
+  resourceID: "/subscriptions/{{ .Values.azure.managedIdentity.subscriptionId }}/resourcegroups/{{ .Values.azure.managedIdentity.resourceGroup }}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{{ .Values.azure.managedIdentity.name }}"
+  clientID: {{ .Values.azure.managedIdentity.clientId | quote }}
+---
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentityBinding
+metadata:
+  name: {{ .Values.podIdentity.name }}-binding
+  namespace: {{ .Values.namespace | default "default" }}
+  labels:
+    app.kubernetes.io/name: pern-ecommerce
+    app.kubernetes.io/component: identity
+    app.kubernetes.io/part-of: pern-shop
+spec:
+  azureIdentity: {{ .Values.podIdentity.name }}
+  selector: {{ .Values.podIdentity.binding.selector }}
+{{- end }}

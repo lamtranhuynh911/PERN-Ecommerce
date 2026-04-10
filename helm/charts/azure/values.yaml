@@ -1,0 +1,153 @@
+# Azure-specific Helm Values for PERN E-commerce Platform
+
+# Core chart dependency
+core:
+  enabled: true
+
+# Global settings (inherited from parent)
+global:
+  cloudProvider: "azure"
+  domain: "ecommerce.thltunneling.dpdns.org"
+  environment: "prod" # dev or prod
+
+# Azure-specific configuration
+azure:
+  # Resource naming follows Terraform convention: pernecommerce-{resource}-{environment}
+  projectPrefix: "pernecommerce"
+  location: "southeastasia" # Must match Terraform location
+  
+  # Resource Group
+  resourceGroup: "pernecommerce-rg" # Managed by Terraform
+  
+  # AKS Cluster (managed by Terraform)
+  cluster:
+    name: "pernecommerce-aks" # Terraform: pernecommerce-aks-{environment}
+    dnsPrefix: "pernecommerce-k8s"
+    location: "southeastasia"
+    resourceGroup: "pernecommerce-rg"
+  
+  # Azure Container Registry (managed by Terraform)
+  acr:
+    loginServer: "pernecommerceacr.azurecr.io" # Terraform: pernecommerceacr{environment}
+    resourceGroup: "pernecommerce-rg"
+  
+  # Key Vault Configuration (managed by Terraform)
+  keyVault:
+    name: "pernecommerce-kv" # Terraform: pernecommerce-keyvault-{environment}
+    resourceGroup: "pernecommerce-rg"
+    location: "southeastasia"
+  
+  # Managed Identity for workload (managed by Terraform)
+  managedIdentity:
+    name: "pernecommerce-identity"
+    resourceGroup: "pernecommerce-rg"
+    clientId: "" # Retrieved from Terraform outputs
+    tenantId: "" # Retrieved from Terraform outputs
+    subscriptionId: "" # Retrieved from Terraform outputs
+  
+  # Application Gateway (managed by Terraform)
+  appGateway:
+    enabled: true
+    name: "pernecommerce-agw"
+    resourceGroup: "pernecommerce-rg"
+  
+  # Static IP (managed by Terraform)
+  publicIP:
+    name: "pernecommerce-pip"
+    resourceGroup: "pernecommerce-rg"
+
+# Backend API Configuration (inherited from core, can override here)
+backend:
+  replicaCount: 2
+  image:
+    repository: "pernecommerceacr.azurecr.io/pernecommerce-server"
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  
+  # Azure-specific secrets from Key Vault
+  secrets:
+    provider: "azure"
+    keyVault: "pernecommerce-kv"
+
+# Frontend Configuration (inherited from core, can override here)
+frontend: Application Gateway
+ingress:
+  enabled: true
+  className: "azure-application-gateway"
+  annotations:
+    appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    appgw.ingress.kubernetes.io/ssl-certificate: "pernecommerce-ssl-cert"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    kubernetes.azure.com/ingress.class: "azure/application-gateway"
+  
+  hosts:
+    - host: "ecommerce.thltunneling.dpdns.org"
+      paths:
+        - path: "/"
+          pathType: Prefix
+          backend:
+            service:
+              name: frontend-service
+              port:
+                number: 80
+        - path: "/api"
+          pathType: Prefix
+          backend:
+            service:
+              name: backend-service
+              port:
+                number: 9000
+  
+  tls:
+    enabled: true
+    secretName: "pernecommerce-tls-cert"
+
+# Secret Management via Azure Key Vault
+secretsStore:
+  provider: "azure"
+  refreshInterval: "1h"
+  k8sSecretName: "pernecommerce-secrets"
+  keyVault: "pernecommerce-kv"
+  
+  # External Secrets Operator configuration
+# Secret Management via Azure Key Vault
+secrets:
+  provider: "azure"
+  refreshInterval: "1h"
+  k8sSecretName: "app-secrets"
+  
+  # External Secrets operator
+  externalSecrets:
+    enabled: true
+    secretStore:
+      name: "azure-secret-store"
+      kind: "SecretStore"
+    
+    secrets:
+      - name: "database-credentials"
+        key: "db-connection-string"
+      - name: "api-keys"
+        key: "api-keys-json"
+
+# RBAC Configuration
+rbac:
+  enabled: true
+  
+# Pod Identity Configuration
+podIdentity:
+  enabled: true
+  name: "pern-workload-identity"
+  binding:
+    selector: "pern-workload"
+
+# Health checks
+healthChecks:
+  enabled: true
+  path: "/health"
+
+# Monitoring (Azure Monitor)
+monitoring:
+  enabled: true
+  appInsights:
+    instrumentationKey: ""
+    enabled: false

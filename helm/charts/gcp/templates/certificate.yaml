@@ -1,0 +1,15 @@
+{{- if .Values.ingress.tls.enabled }}
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: {{ .Values.ingress.tls.certificateName }}
+  namespace: {{ .Values.namespace | default "default" }}
+  labels:
+    app.kubernetes.io/name: pern-ecommerce
+    app.kubernetes.io/component: certificate
+    app.kubernetes.io/part-of: pern-shop
+    cloud-platform: "gcp"
+spec:
+  domains:
+    - {{ .Values.global.domain }}
+{{- end }}

@@ -1,0 +1,73 @@
+# Core Chart Values - Platform-agnostic configuration
+# These values are inherited by parent chart
+
+namespace: "default"
+
+backend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: "docker-registry/pern-ecommerce-server"
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  
+  resources:
+    requests:
+      cpu: "150m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 9000
+  
+  probes:
+    liveness:
+      path: "/health"
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readiness:
+      path: "/health"
+      initialDelaySeconds: 10
+      periodSeconds: 5
+
+frontend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: "docker-registry/pern-ecommerce-client"
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "300m"
+      memory: "256Mi"
+  
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+
+config:
+  googleClientId: ""
+  stripePubKey: ""
+  paystackPubKey: ""
+  apiBaseUrl: "https://api.example.com"
+
+secrets:
+  k8sSecretName: "app-secrets"
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 2000
+  capabilities:
+    drop:
+      - ALL

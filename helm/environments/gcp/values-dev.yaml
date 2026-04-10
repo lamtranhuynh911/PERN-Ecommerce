@@ -1,0 +1,53 @@
+# GCP Development Environment Values
+# Override root values for dev environment on GCP
+
+global:
+  domain: "dev-ecommerce.example.com"
+  environment: "dev"
+  cloudProvider: "gcp"
+
+namespace: "pern-dev"
+
+backend:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "300m"
+      memory: "512Mi"
+  image:
+    tag: "dev-latest"
+
+frontend:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "128Mi"
+    limits:
+      cpu: "150m"
+      memory: "256Mi"
+  image:
+    tag: "dev-latest"
+
+gcp:
+  projectId: "your-dev-project-id"
+  projectNumber: "000000000000"
+  cluster:
+    name: "pern-gke-dev"
+    location: "asia-southeast1"
+    clusterLocation: "asia-southeast1"
+
+config:
+  googleClientId: "YOUR_DEV_GOOGLE_CLIENT_ID"
+  stripePubKey: "pk_test_dev_key"
+  paystackPubKey: "pk_test_dev_key"
+  apiBaseUrl: "https://api.dev-ecommerce.example.com"
+
+secrets:
+  externalSecrets:
+    secrets:
+      - name: "database-connection-string"
+        key: "dev-db-connection-string"

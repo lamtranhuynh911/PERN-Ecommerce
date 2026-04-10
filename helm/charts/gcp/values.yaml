@@ -1,0 +1,130 @@
+# GCP-specific Helm Values for PERN E-commerce Platform
+
+# Core chart dependency
+core:
+  enabled: true
+
+# Global settings (inherited from parent)
+global:
+  cloudProvider: "gcp"
+  domain: "ecommerce.example.com"
+  environment: "dev" # dev or prod
+
+# GCP-specific configuration
+gcp:
+  # Project Configuration
+  projectId: "your-gcp-project-id"
+  projectNumber: "000000000000"
+  
+  # GKE Cluster
+  cluster:
+    name: "pern-gke-cluster"
+    location: "asia-southeast1"
+    clusterLocation: "asia-southeast1"
+  
+  # Service Account for Workload Identity
+  serviceAccount:
+    name: "pern-workload"
+    email: "pern-workload@your-project-id.iam.gserviceaccount.com"
+  
+  # GCP Secret Manager
+  secretManager:
+    projectId: "your-gcp-project-id"
+    secretName: "pern-app-secrets"
+    autoRotate:
+      enabled: true
+      rotationPeriod: "2592000s" # 30 days
+  
+  # Container Registry
+  artifactRegistry:
+    location: "asia-southeast1"
+    repository: "docker-registry"
+    projectId: "your-gcp-project-id"
+
+# Backend API Configuration (inherited from core, can override here)
+backend:
+  replicaCount: 2
+  image:
+    repository: "asia-southeast1-docker.pkg.dev/your-project-id/docker-registry/pern-ecommerce-server"
+    tag: "latest"
+
+# Frontend Configuration (inherited from core, can override here)
+frontend:
+  replicaCount: 2
+  image:
+    repository: "asia-southeast1-docker.pkg.dev/your-project-id/docker-registry/pern-ecommerce-client"
+    tag: "latest"
+
+# Ingress Configuration for GCP (GKE)
+ingress:
+  enabled: true
+  className: "gce"
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "pern-ingress-ip"
+    networking.gke.io/managed-certificates: "pern-ssl-cert"
+    kubernetes.io/ingress.allow-http: "false"
+  
+  hosts:
+    - host: "ecommerce.example.com"
+      paths:
+        - path: "/api/*"
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: backend-svc
+              port:
+                number: 80
+        - path: "/*"
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: frontend-svc
+              port:
+                number: 80
+  
+  tls:
+    enabled: true
+    certificateName: "pern-ssl-cert"
+
+# Secret Management via GCP Secret Manager
+secrets:
+  provider: "gcp"
+  refreshInterval: "1h"
+  k8sSecretName: "app-secrets"
+  
+  # External Secrets operator
+  externalSecrets:
+    enabled: true
+    secretStore:
+      name: "gcp-secret-store"
+      kind: "ClusterSecretStore"
+    
+    secrets:
+      - name: "database-credentials"
+        key: "db-connection-string"
+      - name: "api-keys"
+        key: "api-keys-json"
+
+# RBAC Configuration
+rbac:
+  enabled: true
+
+# Workload Identity Configuration for GCP
+workloadIdentity:
+  enabled: true
+  namespace: "default"
+  serviceAccountName: "pern-workload"
+
+# Health checks
+healthChecks:
+  enabled: true
+  path: "/health"
+
+# Google Cloud Operations (Monitoring, Logging)
+cloudOperations:
+  enabled: true
+  logging:
+    enabled: true
+  monitoring:
+    enabled: true
+    metricsPrefix: "custom.googleapis.com/pern"

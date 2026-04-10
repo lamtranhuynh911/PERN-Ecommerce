@@ -1,0 +1,62 @@
+# Azure Staging Environment Values
+# Override root values for staging environment on Azure
+# Matches Terraform Azure Staging configuration
+
+global:
+  domain: "staging-ecommerce.thltunneling.dpdns.org"
+  environment: "staging"
+  cloudProvider: "azure"
+
+namespace: "pernecommerce-staging"
+
+backend:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: "150m"
+      memory: "384Mi"
+    limits:
+      cpu: "600m"
+      memory: "768Mi"
+  image:
+    repository: "pernecommerceacrstaging.azurecr.io/pernecommerce-server"
+    pullPolicy: IfNotPresent
+    tag: "staging-latest"
+
+frontend:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: "75m"
+      memory: "192Mi"
+    limits:
+      cpu: "300m"
+      memory: "384Mi"
+  image:
+    repository: "pernecommerceacrstaging.azurecr.io/pernecommerce-client"
+    pullPolicy: IfNotPresent
+    tag: "staging-latest"
+
+azure:
+  projectPrefix: "pernecommerce"
+  environment: "staging"
+  location: "southeastasia"
+  resourceGroup: "pernecommerce-rg" # Terraform managed
+  cluster:
+    name: "pernecommerce-aks-staging" # Terraform: pernecommerce-aks-staging
+    dnsPrefix: "pernecommerce-k8s"
+    location: "southeastasia"
+    resourceGroup: "pernecommerce-rg"
+  acr:
+    loginServer: "pernecommerceacrstaging.azurecr.io" # Terraform: pernecommerceacrstaging
+  keyVault:
+    name: "pernecommerce-kv-staging" # Terraform managed
+    resourceGroup: "pernecommerce-rg"
+    location: "southeastasia"
+  managedIdentity:
+    name: "pernecommerce-identity-staging"
+    resourceGroup: "pernecommerce-rg"
+
+config:
+  # Staging-specific configurations
+  logLevel: "info"

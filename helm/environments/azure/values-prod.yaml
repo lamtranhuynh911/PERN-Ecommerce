@@ -1,0 +1,84 @@
+# Azure Production Environment Values
+# Override root values for prod environment on Azure
+# Matches Terraform Azure Prod configuration
+
+global:
+  domain: "ecommerce.thltunneling.dpdns.org"
+  environment: "prod"
+  cloudProvider: "azure"
+
+namespace: "pernecommerce-prod"
+
+backend:
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+  image:
+    repository: "pernecommerceacrprod.azurecr.io/pernecommerce-server"
+    pullPolicy: IfNotPresent
+    tag: "v1.0.0"  # Use specific version in production
+
+frontend:
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  image:
+    repository: "pernecommerceacrprod.azurecr.io/pernecommerce-client"
+    pullPolicy: IfNotPresent
+    tag: "v1.0.0"  # Use specific version in production
+
+azure:
+  projectPrefix: "pernecommerce"
+  environment: "prod"
+  location: "southeastasia"
+  resourceGroup: "pernecommerce-rg" # Terraform managed
+  cluster:
+    name: "pernecommerce-aks-prod" # Terraform: pernecommerce-aks-prod
+    dnsPrefix: "pernecommerce-k8s"
+    location: "southeastasia"
+    resourceGroup: "pernecommerce-rg"
+  acr:
+    loginServer: "pernecommerceacrprod.azurecr.io" # Terraform: pernecommerceacrprod
+  keyVault:
+    name: "pernecommerce-kv-prod" # Terraform managed
+    resourceGroup: "pernecommerce-rg"
+    location: "southeastasia"
+  managedIdentity:
+    name: "pernecommerce-identity-prod"
+    resourceGroup: "pernecommerce-rg"
+
+config:
+  googleClientId: "YOUR_PROD_GOOGLE_CLIENT_ID"
+  stripePubKey: "pk_live_prod_key"
+  paystackPubKey: "pk_live_prod_key"
+  apiBaseUrl: "https://api.ecommerce.example.com"
+
+secrets:
+  refreshInterval: "30m"
+  externalSecrets:
+    secrets:
+      - name: "database-connection-string"
+        key: "prod-db-connection-string"
+      - name: "jwt-secret"
+        key: "prod-jwt-secret"
+      - name: "encryption-key"
+        key: "prod-encryption-key"
+
+ingress:
+  tls:
+    enabled: true
+    secretName: "pern-tls-cert-prod"
+
+podIdentity:
+  enabled: true
+  name: "pern-workload-prod"
