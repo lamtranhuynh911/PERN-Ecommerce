@@ -50,149 +50,19 @@ Built a fully automated CI/CD pipeline using GitHub Actions to ensure code quali
 
 4. Triggers a Helm deployment to update the application on Google Kubernetes Engine (GKE) with zero downtime.
 
+## IaC (Azure and GCP)
 
-## Run Locally
+* Used Terraform to automatically provision all networks, security rules, and compute clusters on both Google Cloud Platform (GCP) and Microsoft Azure.
 
-Clone the project
+* Modular Design: Structured the Terraform code into reusable modules (like network, aks/gke, acr/gar, keyvault). This keeps the code clean (DRY) and makes it easy to set up new environments (Dev/Staging/Prod) using .tfvars files.
 
-```bash
-  git clone https://github.com/dhatguy/PERN-Store.git
-```
+## Helm 
 
-Go to the project directory
+* Managed Kubernetes deployments using Helm. Designed the charts using a smart Parent-Child structure:
+Core Chart: Contains the main app resources (Deployment, Service, HPA) that work on any cloud. Wrapper Charts (Azure/GCP): Contain cloud-specific resources like Ingress Controllers and Managed Identities. Separated environment configurations cleanly into files like values-dev.yaml and values-prod.yaml.
 
-```bash
-  cd PERN-Store
-```
+## Security & Secret Management
 
-Install dependencies
+* No Passwords in Code: Used the External Secrets Operator (ESO) to securely pull database passwords and API keys from Azure Key Vault and GCP Secret Manager directly into Kubernetes Pods.
 
-```bash
-  npm install
-```
-
-Go to server directory and install dependencies
-
-```bash
-  npm install
-```
-
-Go to client directory and install dependencies
-
-```bash
-  npm install
-```
-
-Go to server directory and start the server
-
-```bash
-  npm run dev
-```
-
-Go to client directory and start the client
-
-```bash
-  npm run client
-```
-
-Start both client and server concurrently from the root directory
-
-```bash
-  npm run dev
-```
-
-## Running with docker
-
-Make sure you have Docker installed
-
-### Run the development environment
-
-```bash
-docker-compose -f docker-compose.dev.yml up
-```
-
-### Run the production environment
-
-```bash
-docker-compose up
-```
-
-Go to http://localhost:3000 to view the app running on your browser.
-
-## Deployment
-
-To deploy this project run
-
-```bash
-  npm run deploy
-```
-
-Check this article for [guidance](https://dev.to/stlnick/how-to-deploy-a-full-stack-mern-app-with-heroku-netlify-ncb)
-on how to deploy.
-
-## Tech
-
-- [React](https://reactjs.org/)
-- [Node](https://nodejs.org/en/)
-- [Express](http://expressjs.com/)
-- [Postgres](https://www.postgresql.org/)
-- [node-postgres](https://node-postgres.com/)
-- [Windmill React UI](https://windmillui.com/react-ui)
-- [Tailwind-CSS](https://tailwindcss.com/)
-- [react-hot-toast](https://react-hot-toast.com/docs)
-- [react-Spinners](https://www.npmjs.com/package/react-spinners)
-- [react-helmet-async](https://www.npmjs.com/package/react-helmet-async)
-
-## Environment Variables
-
-To run this project, you will need to add the following environment variables to your .env files in both client and server directory
-
-#### client/.env
-
-`VITE_GOOGLE_CLIENT_ID`
-
-`VITE_GOOGLE_CLIENT_SECRET`
-
-`VITE_API_URL`
-
-`VITE_STRIPE_PUB_KEY`
-
-### server/.env
-
-`POSTGRES_USER`
-
-`POSTGRES_HOST`
-
-`POSTGRES_PASSWORD`
-
-`POSTGRES_DATABASE`
-
-`POSTGRES_DATABASE_TEST`
-
-`POSTGRES_PORT`
-
-`PORT`
-
-`SECRET`
-
-`REFRESH_SECRET`
-
-`SMTP_FROM`
-
-`STRIPE_SECRET_KEY`
-
-## Contributing
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## Feedback
-
-Joseph Odunsi - [@odunsi](https://twitter.com/_odunsi_) - odunsiolakunbi@gmail.com
-
-Project Link: [https://github.com/dhatguy/PERN-Store](https://github.com/dhatguy/PERN-Store)
-
-Demo Link: [https://pern-store.netlify.app](https://pern-store.netlify.app)
+* Zero Trust: Used Azure AD Pod Identity and GCP Workload Identity so the application can talk to cloud services securely without needing physical password files.
