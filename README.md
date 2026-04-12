@@ -1,18 +1,8 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/590f1314804d489eb8461fc4d294a363)](https://app.codacy.com/gh/dhatGuy/PERN-Store?utm_source=github.com&utm_medium=referral&utm_content=dhatGuy/PERN-Store&utm_campaign=Badge_Grade_Settings)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/af46234b-6fba-43f2-808f-e2bbe4b2adf1/deploy-status)](https://app.netlify.com/sites/pern-store/deploys)
-[![wakatime](https://wakatime.com/badge/github/dhatGuy/PERN-Store.svg)](https://wakatime.com/badge/github/dhatGuy/PERN-Store)
 
 # PERN STORE
 
-A full-stack e-commerce project built with Postgres, Express, React and Node.
-
-## Swagger API Documentation
-
-[Documentation](https://pern-store.onrender.com/api/docs/)
-
-## Demo
-
-[Run demo](https://pern-store.netlify.app)
+This is a complete e-commerce system built with the PERN Stack (PostgreSQL, Express, React, Node.js). 
+However, the main focus of this repository is DevOps and Infrastructure. It demonstrates how to automate CI/CD pipelines, use Infrastructure as Code (IaC), and deploy applications across Multiple Clouds (GCP and Azure) using Kubernetes.
 
 ## Screenshots
 
@@ -21,6 +11,45 @@ A full-stack e-commerce project built with Postgres, Express, React and Node.
 ## Database Schema
 
 [![ERD](https://user-images.githubusercontent.com/51405947/133893279-8872c475-85ff-47c4-8ade-7d9ef9e5325a.png)](https://dbdiagram.io/d/5fe320fa9a6c525a03bc19db)
+
+## Containerization
+
+1. Multi-stage Builds: Rewrote the Dockerfile for both the frontend and backend using multi-stage builds. This separates the build environment from the runtime environment, greatly reducing the final image size.
+
+2. Security Hardening: Followed the "Least Privilege" rule. Containers are configured to run as a non-root node user instead of root, making the application much more secure against attacks.
+
+3. Environment Parity: Used docker-compose.yml for local development (with hot-reloading) and docker-compose.prod.yml to test production settings locally before deploying.
+
+4. Makefile Automation: Created a Makefile to automate daily tasks. Developers can easily format code, run database migrations, build Docker images, and push them to Google Artifact Registry (GAR) or Azure Container Registry (ACR) using simple make commands.
+
+## Database Migration
+
+* Used the Supabase CLI to manage database changes.
+
+* All database changes (tables, roles, security policies) are saved as SQL scripts in supabase/migrations. This acts as version control for the database, making it easy to track changes or roll back if something goes wrong.
+
+## CI/CD
+
+Built a fully automated CI/CD pipeline using GitHub Actions to ensure code quality before it goes to Production:
+
+**CI Pipeline (Testing & Quality):**
+
+1. Automatically formats code using Prettier.
+
+2. Runs static code analysis (Linting).
+
+3. Runs Unit Tests.
+
+**CD Pipeline (Deployment):**
+
+1. Automatically runs database migrations.
+
+2. Builds Docker images and tags them with the Git Commit SHA.
+
+3. Pushes images to private registries (GAR / ACR).
+
+4. Triggers a Helm deployment to update the application on Google Kubernetes Engine (GKE) with zero downtime.
+
 
 ## Run Locally
 
