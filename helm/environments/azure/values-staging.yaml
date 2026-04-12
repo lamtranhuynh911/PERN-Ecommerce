@@ -19,7 +19,7 @@ backend:
       cpu: "600m"
       memory: "768Mi"
   image:
-    repository: "pernecommerceacrstaging.azurecr.io/pernecommerce-server"
+    repository: "pernecommerceacrstaging.azurecr.io/pern-ecommerce-server"
     pullPolicy: IfNotPresent
     tag: "staging-latest"
 
@@ -33,7 +33,7 @@ frontend:
       cpu: "300m"
       memory: "384Mi"
   image:
-    repository: "pernecommerceacrstaging.azurecr.io/pernecommerce-client"
+    repository: "pernecommerceacrstaging.azurecr.io/pern-ecommerce-client"
     pullPolicy: IfNotPresent
     tag: "staging-latest"
 

@@ -55,6 +55,9 @@ spec:
               cpu: {{ .Values.backend.resources.limits.cpu }}
               memory: {{ .Values.backend.resources.limits.memory }}
           
+          # ==========================================
+          # KHỐI BIẾN MÔI TRƯỜNG ĐÃ ĐƯỢC GOM LẠI
+          # ==========================================
           env:
             - name: PORT
               value: {{ .Values.backend.service.targetPort | quote }}
@@ -62,47 +65,6 @@ spec:
               value: "production"
             - name: LOG_LEVEL
               value: "info"
-          
-          envFrom:
-            - configMapRef:
-                name: app-config
-            - secretRef:
-                name: {{ .Values.secrets.k8sSecretName }}
-                optional: true
-          
-          livenessProbe:
-            httpGet:
-              path: {{ .Values.backend.probes.liveness.path }}
-              port: http
-            initialDelaySeconds: {{ .Values.backend.probes.liveness.initialDelaySeconds }}
-            periodSeconds: {{ .Values.backend.probes.liveness.periodSeconds }}
-            timeoutSeconds: 5
-            failureThreshold: 3
-          
-          readinessProbe:
-            httpGet:
-              path: {{ .Values.backend.probes.readiness.path }}
-              port: http
-            initialDelaySeconds: {{ .Values.backend.probes.readiness.initialDelaySeconds }}
-            periodSeconds: {{ .Values.backend.probes.readiness.periodSeconds }}
-            timeoutSeconds: 3
-            failureThreshold: 2
-          
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
-            capabilities:
-              drop:
-                - ALL
-          
-          volumeMounts:
-            - name: tmp
-              mountPath: /tmp
-      
-      volumes:
-        - name: tmp
-          emptyDir: {}
-{{- end }}
             - name: POSTGRES_HOST
               valueFrom:
                 secretKeyRef:
@@ -183,7 +145,25 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secrets.k8sSecretName }}
                   key: jwt-refresh-secret
-
+          
+          envFrom:
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                name: {{ .Values.secrets.k8sSecretName }}
+                optional: true
+          
+          # ==========================================
+          # LIVENESS & READINESS ĐÃ ĐƯỢC ĐƯA VÀO CONTAINER
+          # ==========================================
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.backend.healthCheck.requestPath }}
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
+          
           readinessProbe:
             httpGet:
               path: {{ .Values.backend.healthCheck.requestPath }}
@@ -192,10 +172,19 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             failureThreshold: 3
-          livenessProbe:
-            httpGet:
-              path: {{ .Values.backend.healthCheck.requestPath }}
-              port: http
-            initialDelaySeconds: 15
-            periodSeconds: 20
-            failureThreshold: 3
+          
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+          
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      
+      volumes:
+        - name: tmp
+          emptyDir: {}
+{{- end }}

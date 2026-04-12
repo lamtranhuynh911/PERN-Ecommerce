@@ -1,74 +1,77 @@
-# Azure Development Environment Values
-# Override root values for dev environment on Azure
-# Matches Terraform Azure Dev configuration
-
+# Các giá trị của riêng Azure (Nằm ngoài cùng)
 global:
-  domain: "dev-ecommerce.thltunneling.dpdns.org"
+  domain: "ecommerce.thltunneling.dpdns.org"
   environment: "dev"
   cloudProvider: "azure"
 
 namespace: "pernecommerce-dev"
 
-backend:
-  replicaCount: 1
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "256Mi"
-    limits:
-      cpu: "300m"
-      memory: "512Mi"
-  image:
-    repository: "pernecommerceacrdev.azurecr.io/pernecommerce-server"
-    pullPolicy: IfNotPresent
-    tag: "dev-latest"
-
-frontend:
-  replicaCount: 1
-  resources:
-    requests:
-      cpu: "50m"
-      memory: "128Mi"
-    limits:
-      cpu: "150m"
-      memory: "256Mi"
-  image:
-    repository: "pernecommerceacrdev.azurecr.io/pernecommerce-client"
-    pullPolicy: IfNotPresent
-    tag: "dev-latest"
-
 azure:
   projectPrefix: "pernecommerce"
-  environment: "dev"
-  location: "southeastasia"
-  resourceGroup: "pernecommerce-rg" # Terraform managed
-  cluster:
-    name: "pernecommerce-aks-dev" # Terraform: pernecommerce-aks-dev
-    dnsPrefix: "pernecommerce-k8s"
-    location: "southeastasia"
-    resourceGroup: "pernecommerce-rg"
-  acr:
-    loginServer: "pernecommerceacrdev.azurecr.io" # Terraform: pernecommerceacrdev
-  keyVault:
-    name: "pernecommerce-kv-dev" # Terraform managed
-    resourceGroup: "pernecommerce-rg"
-    location: "southeastasia"
-  managedIdentity:
-    name: "pernecommerce-identity-dev"
-    resourceGroup: "pernecommerce-rg"
-
-config:
-  googleClientId: "YOUR_DEV_GOOGLE_CLIENT_ID"
-  stripePubKey: "pk_test_dev_key"
-  paystackPubKey: "pk_test_dev_key"
-  apiBaseUrl: "https://api.dev-ecommerce.example.com"
-
-secrets:
-  externalSecrets:
-    secrets:
-      - name: "database-connection-string"
-        key: "dev-db-connection-string"
+  # ... (giữ nguyên cấu hình azure cũ của bạn ở đây) ...
 
 podIdentity:
   enabled: true
   name: "pern-workload-dev"
+
+# ========================================================
+# CẤU HÌNH TRUYỀN XUỐNG CHART CON (LÕI)
+# Bắt buộc phải nằm dưới key 'pern-ecommerce-app'
+# ========================================================
+pern-ecommerce-app:
+  backend:
+    replicaCount: 1
+    # Bổ sung healthCheck để file deployment không bị lỗi nil pointer
+    healthCheck:
+      requestPath: "/health"
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+      limits:
+        cpu: "300m"
+        memory: "512Mi"
+    image:
+      repository: "pernecommerceacrdevregistry.azurecr.io/pern-ecommerce-server"
+      pullPolicy: IfNotPresent
+      tag: "dev-latest"
+
+  frontend:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "128Mi"
+      limits:
+        cpu: "150m"
+        memory: "256Mi"
+    image:
+      repository: "pernecommerceacrdevregistry.azurecr.io/pern-ecommerce-client"
+      pullPolicy: IfNotPresent
+      tag: "dev-latest"
+
+  config:
+    googleClientId: "926599606710-feabn75ggmr1ofggru6mdiupq1vtl4qr.apps.googleusercontent.com"
+    stripePubKey: "pk_test_51SnfZ7Ho4mzcNxtWRuqKSjP7gya7ZeV646uV5KxEY1riC9CRtIYFa0ulQ2NzqSigdWwd27QFLEtis1ymc8sJyhfJ00utRylTB6"
+    paystackPubKey: "pk_test_uuiduw984x4h4xx41489j94n"
+    apiBaseUrl: "https://api.ecommerce.thltunneling.dpdns.org"
+
+  secrets:
+    externalSecrets:
+      enabled: true
+      secretStore:
+        name: "azure-secret-store"
+        kind: "SecretStore"
+      secrets:
+        - name: "jwt-refresh-secret"
+          key: "backend-jwt-refresh-secret"
+        - name: "jwt-secret"
+          key: "backend-jwt-secret"
+        - name: "oauth-client-secret"
+          key: "google-oauth-client-secret"
+        - name: "oauth-refresh-token"
+          key: "google-oauth-refresh-token"
+        - name: "stripe-secret-key"
+          key: "stripe-secret-key"
+        - name: "password"
+          key: "supabase-db-password"

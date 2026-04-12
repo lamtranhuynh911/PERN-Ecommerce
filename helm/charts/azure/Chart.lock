@@ -1,0 +1,6 @@
+dependencies:
+- name: pern-ecommerce-app
+  repository: file://../core
+  version: 1.0.0
+digest: sha256:76f8bcd673b65668a78cd69989be456e3cfd426034a475a27f0f37f2a626b4b6
+generated: "2026-04-11T01:06:07.972669356+07:00"

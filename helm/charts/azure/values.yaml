@@ -8,77 +8,54 @@ core:
 global:
   cloudProvider: "azure"
   domain: "ecommerce.thltunneling.dpdns.org"
-  environment: "prod" # dev or prod
+  environment: "prod" 
 
 # Azure-specific configuration
 azure:
-  # Resource naming follows Terraform convention: pernecommerce-{resource}-{environment}
   projectPrefix: "pernecommerce"
-  location: "southeastasia" # Must match Terraform location
+  location: "southeastasia"
+  resourceGroup: "pernecommerce-rg"
   
-  # Resource Group
-  resourceGroup: "pernecommerce-rg" # Managed by Terraform
-  
-  # AKS Cluster (managed by Terraform)
   cluster:
-    name: "pernecommerce-aks" # Terraform: pernecommerce-aks-{environment}
+    name: "pernecommerce-aks"
     dnsPrefix: "pernecommerce-k8s"
     location: "southeastasia"
     resourceGroup: "pernecommerce-rg"
   
-  # Azure Container Registry (managed by Terraform)
   acr:
-    loginServer: "pernecommerceacr.azurecr.io" # Terraform: pernecommerceacr{environment}
+    loginServer: "pernecommerceacr.azurecr.io"
     resourceGroup: "pernecommerce-rg"
   
-  # Key Vault Configuration (managed by Terraform)
   keyVault:
-    name: "pernecommerce-kv" # Terraform: pernecommerce-keyvault-{environment}
+    name: "pernecommerce-kv"
     resourceGroup: "pernecommerce-rg"
     location: "southeastasia"
   
-  # Managed Identity for workload (managed by Terraform)
   managedIdentity:
     name: "pernecommerce-identity"
     resourceGroup: "pernecommerce-rg"
-    clientId: "" # Retrieved from Terraform outputs
-    tenantId: "" # Retrieved from Terraform outputs
-    subscriptionId: "" # Retrieved from Terraform outputs
+    clientId: "" 
+    tenantId: "" 
+    subscriptionId: "" 
   
-  # Application Gateway (managed by Terraform)
   appGateway:
     enabled: true
     name: "pernecommerce-agw"
     resourceGroup: "pernecommerce-rg"
   
-  # Static IP (managed by Terraform)
   publicIP:
     name: "pernecommerce-pip"
     resourceGroup: "pernecommerce-rg"
 
-# Backend API Configuration (inherited from core, can override here)
-backend:
-  replicaCount: 2
-  image:
-    repository: "pernecommerceacr.azurecr.io/pernecommerce-server"
-    pullPolicy: IfNotPresent
-    tag: "latest"
-  
-  # Azure-specific secrets from Key Vault
-  secrets:
-    provider: "azure"
-    keyVault: "pernecommerce-kv"
-
-# Frontend Configuration (inherited from core, can override here)
-frontend: Application Gateway
+# ==========================================
+# CẤU HÌNH CHO INGRESS
+# ==========================================
 ingress:
   enabled: true
   className: "azure-application-gateway"
   annotations:
     appgw.ingress.kubernetes.io/ssl-redirect: "true"
-    appgw.ingress.kubernetes.io/ssl-certificate: "pernecommerce-ssl-cert"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    kubernetes.azure.com/ingress.class: "azure/application-gateway"
   
   hosts:
     - host: "ecommerce.thltunneling.dpdns.org"
@@ -97,37 +74,21 @@ ingress:
               name: backend-service
               port:
                 number: 9000
-  
   tls:
     enabled: true
     secretName: "pernecommerce-tls-cert"
 
-# Secret Management via Azure Key Vault
-secretsStore:
-  provider: "azure"
-  refreshInterval: "1h"
-  k8sSecretName: "pernecommerce-secrets"
-  keyVault: "pernecommerce-kv"
-  
-  # External Secrets Operator configuration
-# Secret Management via Azure Key Vault
+# ==========================================
+# KHỞI TẠO MẶC ĐỊNH CHO EXTERNAL SECRETS
+# (Giữ chỗ để tránh lỗi nil pointer)
+# ==========================================
 secrets:
-  provider: "azure"
-  refreshInterval: "1h"
-  k8sSecretName: "app-secrets"
-  
-  # External Secrets operator
   externalSecrets:
-    enabled: true
+    enabled: false
     secretStore:
       name: "azure-secret-store"
       kind: "SecretStore"
-    
-    secrets:
-      - name: "database-credentials"
-        key: "db-connection-string"
-      - name: "api-keys"
-        key: "api-keys-json"
+    secrets: []
 
 # RBAC Configuration
 rbac:

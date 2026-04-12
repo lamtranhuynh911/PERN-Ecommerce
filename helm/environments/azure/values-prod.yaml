@@ -19,7 +19,7 @@ backend:
       cpu: "1000m"
       memory: "1Gi"
   image:
-    repository: "pernecommerceacrprod.azurecr.io/pernecommerce-server"
+    repository: "pernecommerceacrprod.azurecr.io/pern-ecommerce-server"
     pullPolicy: IfNotPresent
     tag: "v1.0.0"  # Use specific version in production
 
@@ -33,7 +33,7 @@ frontend:
       cpu: "500m"
       memory: "512Mi"
   image:
-    repository: "pernecommerceacrprod.azurecr.io/pernecommerce-client"
+    repository: "pernecommerceacrprod.azurecr.io/pern-ecommerce-client"
     pullPolicy: IfNotPresent
     tag: "v1.0.0"  # Use specific version in production
 

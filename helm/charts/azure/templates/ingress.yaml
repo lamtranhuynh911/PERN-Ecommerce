@@ -10,11 +10,11 @@ metadata:
     app.kubernetes.io/part-of: pern-shop
     deployment.env: {{ .Values.global.environment }}
   annotations:
-    kubernetes.io/ingress.class: "{{ .Values.ingress.className }}"
     {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
+  ingressClassName: nginx
   {{- if .Values.ingress.tls.enabled }}
   tls:
     - hosts:
