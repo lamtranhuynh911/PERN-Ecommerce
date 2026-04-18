@@ -10,9 +10,55 @@ azure:
   projectPrefix: "pernecommerce"
   # ... (giữ nguyên cấu hình azure cũ của bạn ở đây) ...
 
-podIdentity:
-  enabled: true
-  name: "pern-workload-dev"
+secrets:
+  externalSecrets:
+    enabled: true
+    secretStore:
+      name: "azure-secret-store"
+      kind: "SecretStore"
+    secrets:
+      # --- Database Secrets ---
+      - name: "host"
+        key: "supabase-db-host"
+      - name: "port"
+        key: "supabase-db-port"
+      - name: "dbname"
+        key: "supabase-db-name"
+      - name: "user"
+        key: "supabase-db-user"
+      - name: "password"
+        key: "supabase-db-password"
+      
+      # --- Email/SMTP Secrets ---
+      - name: "smtp-from"
+        key: "smtp-from"
+      - name: "smtp-user"
+        key: "smtp-user"
+        
+      # --- Payment Secrets ---
+      - name: "stripe-secret-key"
+        key: "stripe-secret-key"
+        
+      # --- OAuth & Google Secrets ---
+      # (Có vẻ code đang dùng 2 bộ biến cho Google OAuth, ta cứ kéo đủ về)
+      - name: "oauth-client-id"
+        key: "oauth-client-id"
+      - name: "oauth-client-secret"
+        key: "oauth-client-secret"
+      - name: "oauth-refresh-token"
+        key: "oauth-refresh-token"
+      - name: "client-id"
+        key: "client-id"
+      - name: "client-secret"
+        key: "client-secret"
+      - name: "refresh-token"
+        key: "refresh-token"
+        
+      # --- JWT Secrets ---
+      - name: "jwt-secret"
+        key: "jwt-secret"
+      - name: "jwt-refresh-secret"
+        key: "jwt-refresh-secret"
 
 # ========================================================
 # CẤU HÌNH TRUYỀN XUỐNG CHART CON (LÕI)
@@ -57,21 +103,43 @@ pern-ecommerce-app:
     apiBaseUrl: "https://api.ecommerce.thltunneling.dpdns.org"
 
   secrets:
+    k8sSecretName: "app-secrets"
+    refreshInterval: "1h"
     externalSecrets:
       enabled: true
       secretStore:
         name: "azure-secret-store"
         kind: "SecretStore"
       secrets:
-        - name: "jwt-refresh-secret"
-          key: "backend-jwt-refresh-secret"
-        - name: "jwt-secret"
-          key: "backend-jwt-secret"
-        - name: "oauth-client-secret"
-          key: "google-oauth-client-secret"
-        - name: "oauth-refresh-token"
-          key: "google-oauth-refresh-token"
-        - name: "stripe-secret-key"
-          key: "stripe-secret-key"
+        - name: "host"
+          key: "supabase-db-host"
+        - name: "port"
+          key: "supabase-db-port"
+        - name: "dbname"
+          key: "supabase-db-name"
+        - name: "user"
+          key: "supabase-db-user"
         - name: "password"
           key: "supabase-db-password"
+        - name: "smtp-from"
+          key: "smtp-from"
+        - name: "smtp-user"
+          key: "smtp-user"
+        - name: "stripe-secret-key"
+          key: "stripe-secret-key"
+        - name: "oauth-client-id"
+          key: "oauth-client-id"
+        - name: "oauth-client-secret"
+          key: "oauth-client-secret"
+        - name: "oauth-refresh-token"
+          key: "oauth-refresh-token"
+        - name: "client-id"
+          key: "client-id"
+        - name: "client-secret"
+          key: "client-secret"
+        - name: "refresh-token"
+          key: "refresh-token"
+        - name: "jwt-secret"
+          key: "jwt-secret"
+        - name: "jwt-refresh-secret"
+          key: "jwt-refresh-secret"
