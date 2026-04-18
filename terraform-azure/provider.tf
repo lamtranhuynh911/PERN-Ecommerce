@@ -10,6 +10,10 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "~> 2.0"
     }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.0"
+    }
   }
 
   # Backend configuration to store state in Azure Blob Storage
@@ -25,7 +29,6 @@ provider "azurerm" {
   features {}
 }
 
-# Configure the Kubernetes provider using the credentials outputted from the AKS module
 provider "kubernetes" {
   host                   = module.aks.kube_config.host
   client_certificate     = base64decode(module.aks.kube_config.client_certificate)
