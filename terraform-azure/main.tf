@@ -53,28 +53,3 @@ module "keyvault" {
   resource_group_name = module.base.rg_name
   location            = module.base.rg_location
 }
-
-# ==============================================================================
-# KUBERNETES RESOURCES
-# ==============================================================================
-
-# Create a ConfigMap to store non-secret application configurations
-resource "kubernetes_config_map" "backend_config" {
-  metadata {
-    name      = "${local.project_prefix}-backend-config-${var.environment}"
-    namespace = "default"
-  }
-
-  data = {
-    POSTGRES_HOST = var.db_host
-    POSTGRES_PORT = tostring(var.db_port) # K8s ConfigMap expects string values
-    POSTGRES_USER = var.db_user
-    POSTGRES_DB   = var.db_name
-    PORT          = tostring(var.app_port)
-    SMTP_FROM     = var.smtp_from
-    SMTP_USER     = var.smtp_user
-  }
-
-  # Ensure the ConfigMap is only created AFTER the AKS cluster is fully provisioned
-  depends_on = [module.aks]
-}
