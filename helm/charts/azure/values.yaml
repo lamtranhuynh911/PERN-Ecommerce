@@ -52,7 +52,7 @@ azure:
 # ==========================================
 ingress:
   enabled: true
-  className: "azure-application-gateway"
+  className: "nginx"
   annotations:
     appgw.ingress.kubernetes.io/ssl-redirect: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -93,13 +93,6 @@ secrets:
 # RBAC Configuration
 rbac:
   enabled: true
-  
-# Pod Identity Configuration
-podIdentity:
-  enabled: true
-  name: "pern-workload-identity"
-  binding:
-    selector: "pern-workload"
 
 # Health checks
 healthChecks:
