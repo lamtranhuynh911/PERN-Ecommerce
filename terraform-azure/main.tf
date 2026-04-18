@@ -53,3 +53,16 @@ module "keyvault" {
   resource_group_name = module.base.rg_name
   location            = module.base.rg_location
 }
+
+data "azurerm_client_config" "current" {}
+
+resource "azurerm_key_vault_access_policy" "aks_kv_access" {
+  key_vault_id = module.keyvault.keyvault_id  
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  
+  object_id    = module.aks.kubelet_identity_object_id 
+
+  secret_permissions = [
+    "Get", "List"
+  ]
+}
