@@ -8,6 +8,8 @@ namespace: "pernecommerce-dev"
 
 azure:
   projectPrefix: "pernecommerce"
+  keyVault:
+    name: "pernecommercekvdev"
   # ... (giữ nguyên cấu hình azure cũ của bạn ở đây) ...
 
 secrets:
