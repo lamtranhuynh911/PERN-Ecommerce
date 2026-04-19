@@ -2,7 +2,7 @@ node_modules
 *.env
 *.vscode
 client/.eslintcache
-
+*.sh
 dist
 client/public/sitemap.xml
 .terraform/
