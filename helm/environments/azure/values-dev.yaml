@@ -80,7 +80,7 @@ pern-ecommerce-app:
     image:
       repository: "pernecommerceacrdevregistry.azurecr.io/pern-ecommerce-server"
       pullPolicy: IfNotPresent
-      tag: "dev-latest"
+      tag: "latest"
 
   frontend:
     replicaCount: 1
@@ -94,7 +94,7 @@ pern-ecommerce-app:
     image:
       repository: "pernecommerceacrdevregistry.azurecr.io/pern-ecommerce-client"
       pullPolicy: IfNotPresent
-      tag: "dev-latest"
+      tag: "latest"
 
   config:
     googleClientId: "926599606710-feabn75ggmr1ofggru6mdiupq1vtl4qr.apps.googleusercontent.com"

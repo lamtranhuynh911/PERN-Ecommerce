@@ -7,5 +7,5 @@ variable "cluster_name" {
 variable "resource_group_name" {
   type        = string
   description = "Resource Group name containing the AKS cluster"
-  default     = "pernecommerce-rg"
+  default     = "pernecommerce-rg-dev"
 }

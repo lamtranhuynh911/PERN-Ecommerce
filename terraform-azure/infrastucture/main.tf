@@ -5,34 +5,42 @@ module "base" {
   source         = "./modules/base"
   environment    = var.environment
   location       = var.location
-  project_prefix = var.project_prefix
+  project_name   = var.project_prefix
 }
 
-module "aks" {
-  source              = "./modules/aks"
-  environment         = var.environment
-  location            = var.location
-  project_prefix      = var.project_prefix
-  resource_group_name = module.base.resource_group_name
-  vnet_subnet_id      = module.base.aks_subnet_id
-}
-
-module "keyvault" {
-  source              = "./modules/keyvault"
-  environment         = var.environment
-  location            = var.location
-  project_prefix      = var.project_prefix
-  resource_group_name = module.base.resource_group_name
-}
-
+# 3. Azure Container Registry (ACR) Module
 module "acr" {
   source              = "./modules/acr"
-  environment         = var.environment
-  location            = var.location
-  project_prefix      = var.project_prefix
-  resource_group_name = module.base.resource_group_name
+  
+  registry_name       = "${var.project_prefix}acr${var.environment}" 
+  rg_name = module.base.rg_name
+  rg_location            = module.base.rg_location
+  sku                 = "Basic"
 }
 
+# 4. Azure Kubernetes Service (AKS) Module
+module "aks" {
+  source              = "./modules/aks"
+  
+  cluster_name        = "${var.project_prefix}-aks-${var.environment}"
+  dns_prefix          = "${var.project_prefix}-k8s"
+  
+  rg_name = module.base.rg_name
+  rg_location            = module.base.rg_location
+  acr_id              = module.acr.acr_id
+  
+  node_count          = 1
+  vm_size             = "Standard_B2s_v2" 
+}
+
+# 5. Azure Key Vault Module
+module "keyvault" {
+  source              = "./modules/keyvault"
+  
+  keyvault_name       = "${var.project_prefix}kv${var.environment}"
+  resource_group_name = module.base.rg_name
+  location            = module.base.rg_location
+}
 # Cấp quyền cho AKS đọc mật khẩu từ Key Vault
 resource "azurerm_key_vault_access_policy" "aks_kv_access" {
   key_vault_id = module.keyvault.keyvault_id

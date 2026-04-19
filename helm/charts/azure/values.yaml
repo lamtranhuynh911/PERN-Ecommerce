@@ -27,7 +27,7 @@ azure:
     resourceGroup: "pernecommerce-rg"
   
   keyVault:
-    name: "pernecommerce-kv"
+    name: "pernecommercekvdev"
     resourceGroup: "pernecommerce-rg"
     location: "southeastasia"
   

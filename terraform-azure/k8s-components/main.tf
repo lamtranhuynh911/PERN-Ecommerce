@@ -26,3 +26,19 @@ resource "helm_release" "cert_manager" {
     value = "true"
   }
 }
+
+# Cài đặt External Secrets Operator (Kẻ đi lấy mật khẩu từ Azure Key Vault)
+resource "helm_release" "external_secrets" {
+  name             = "external-secrets"
+  repository       = "https://charts.external-secrets.io"
+  chart            = "external-secrets"
+  namespace        = "external-secrets"
+  create_namespace = true
+  version          = "0.9.11" # Phiên bản ổn định hiện tại
+
+  # Lệnh BẮT BUỘC để K8s học thêm các từ vựng CRD mới (SecretStore, ExternalSecret)
+  set {
+    name  = "installCRDs"
+    value = "true"
+  }
+}
