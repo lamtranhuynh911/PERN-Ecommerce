@@ -64,16 +64,16 @@ ingress:
           pathType: Prefix
           backend:
             service:
-              name: frontend-service
+              name: frontend-svc
               port:
                 number: 80
         - path: "/api"
           pathType: Prefix
           backend:
             service:
-              name: backend-service
+              name: backend-svc
               port:
-                number: 9000
+                number: 80
   tls:
     enabled: true
     secretName: "pernecommerce-tls-cert"

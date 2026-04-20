@@ -97,6 +97,9 @@ pern-ecommerce-app:
       repository: "pernecommerceacrdevregistry.azurecr.io/pern-ecommerce-client"
       pullPolicy: IfNotPresent
       tag: "latest"
+    service:
+      type: ClusterIP
+      port: 80
 
   config:
     googleClientId: "926599606710-feabn75ggmr1ofggru6mdiupq1vtl4qr.apps.googleusercontent.com"
