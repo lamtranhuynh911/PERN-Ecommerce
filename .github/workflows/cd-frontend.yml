@@ -35,13 +35,17 @@ jobs:
           docker build -t $IMAGE_TAG ./client
           docker push $IMAGE_TAG
 
-      - name: Get AKS Credentials
-        uses: azure/aks-set-context@v3
+      - name: Set up Kubeconfig
+        uses: azure/k8s-set-context@v3
         with:
-          resource-group: ${{ env.RESOURCE_GROUP }}
-          cluster-name: ${{ env.CLUSTER_NAME }}
+          method: kubeconfig
+          kubeconfig: ${{ secrets.AKS_KUBECONFIG }}
 
-      - name: Deploy to AKS
+      # 4. Deploy bằng Helm (Tránh lỗi đụng độ cấu hình)
+      - name: Deploy to AKS using Helm
         run: |
-          kubectl set image deployment/${{ env.DEPLOYMENT }} ${{ env.CONTAINER }}=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE }}:${{ github.sha }} -n ${{ env.NAMESPACE }}
-          kubectl rollout status deployment/${{ env.DEPLOYMENT }} -n ${{ env.NAMESPACE }}
+          helm upgrade pernecommerce ./helm/charts/azure \
+            -f ./helm/environments/azure/values-dev.yaml \
+            --set pern-ecommerce-app.frontend.image.tag=${{ github.sha }} \
+            -n ${{ env.NAMESPACE }} \
+            --reuse-values
