@@ -66,3 +66,165 @@ Core Chart: Contains the main app resources (Deployment, Service, HPA) that work
 * No Passwords in Code: Used the External Secrets Operator (ESO) to securely pull database passwords and API keys from Azure Key Vault and GCP Secret Manager directly into Kubernetes Pods.
 
 * Zero Trust: Used Azure AD Pod Identity and GCP Workload Identity so the application can talk to cloud services securely without needing physical password files.
+
+## Running the project
+
+### Running Locally via Node.js
+
+To run the project directly on your machine without Docker, you will need **Node.js** and **PostgreSQL** installed.
+ 
+ #### Backend
+
+1. Navigate to the server directory:
+   ```bash
+   cd server
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up your environment variables by copying the example file:
+   ```bash
+   cp .env.example .env
+   ```
+   *(Update the `.env` file with your local PostgreSQL credentials).*
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+#### Frontend
+
+1. Open a new terminal and navigate to the client directory:
+   ```bash
+   cd client
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up your environment variables (if required):
+   ```bash
+   cp .env.example .env
+   ```
+4. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```
+
+### Initializing the Database Schema
+If you are running PostgreSQL locally, you need to create the necessary tables and seed data using the provided `init.sql` file.
+
+1. Ensure your local PostgreSQL server is running and you have created an empty database (e.g., `ecommerce_db`).
+2. Locate the initialization script at `server/config/init.sql`.
+3. You can execute this script using a GUI tool like **pgAdmin** or **DBeaver**, or via the `psql` command line:
+   ```bash
+   psql -U your_postgres_user -d your_database_name -f server/config/init.sql
+   ```
+
+### Running via Docker Compose
+
+#### Local Dev Container
+
+This spins up the containers with hot-reloading enabled for active development:
+```bash
+docker compose up -d
+```
+*(To stop and remove containers, run: `docker compose down`)*
+
+#### Local Prod Container
+
+This simulates the real production environment, building optimized static files and serving the frontend via Nginx:
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+
+### Provisioning Infrastructure with Terraform
+
+We use Terraform to automate the creation of Azure resources (AKS, ACR, KeyVault) and essential Kubernetes add-ons.
+
+#### Phase 1: Core Infrastructure
+Navigate to the infrastructure directory to create the AKS cluster and ACR:
+```bash
+cd terraform-azure/infrastucture
+terraform init
+terraform plan
+terraform apply -auto-approve
+```
+
+#### Phase 2: Kubernetes Components
+Once the cluster is ready, set up the Nginx Ingress Controller, Cert-Manager, etc.:
+```bash
+# Get AKS credentials to allow Terraform to interact with the cluster
+az aks get-credentials --resource-group <your-resource-group> --name <your-aks-cluster-name>
+
+cd ../k8s-components
+terraform init
+terraform plan
+terraform apply -auto-approve
+```
+
+You'll need to manually populate secrets to the created KeyVault
+
+### Building and Pushing Images (Makefile)
+
+The project includes a `Makefile` to simplify building and pushing Docker images to **Azure Container Registry (ACR)**.
+
+1. **Login to Azure CLI:**
+   ```bash
+   az login
+   ```
+2. **Login to your Azure Container Registry:**
+   ```bash
+   az acr login --name <your-acr-name>
+   ```
+3. **Build and Push using Make:**
+   Ensure you are in the root directory. You can edit the `Makefile` to ensure the `ACR_NAME` variable matches yours, then run:
+   ```bash
+   # Push the Docker images to ACR
+   make push-azure
+   ```
+### Deploying the Application with Helm
+
+With the infrastructure ready and images pushed to ACR, use Helm to deploy the application.
+
+1. Ensure your `kubectl` is pointing to your AKS cluster:
+   ```bash
+   az aks get-credentials --resource-group <your-resource-group> --name <your-aks-cluster-name>
+   ```
+2. Deploy the application using the designated environment values:
+   ```bash
+   helm upgrade --install pernecommerce ./helm/charts/azure \
+     -f ./helm/environments/azure/values-dev.yaml \
+     --namespace pernecommerce-dev \
+     --create-namespace
+   ```
+
+### Setting up GitHub Secrets for CI/CD
+
+To enable the automated GitHub Actions pipelines (`.github/workflows/`), you must provide Azure credentials securely. 
+
+Go to your GitHub Repository -> **Settings** -> **Secrets and variables** -> **Actions** -> **New repository secret**, and add the following:
+
+#### 1. ACR Credentials (To push images)
+Run the following commands to enable the admin user and get the credentials for your ACR:
+```bash
+# Enable admin user
+az acr update -n <your-acr-name> --admin-enabled true
+
+# Retrieve credentials
+az acr credential show -n <your-acr-name>
+```
+* Add `ACR_USERNAME` (Usually the name of your registry).
+* Add `ACR_PASSWORD` (Copy one of the generated passwords).
+
+#### 2. AKS Kubeconfig (To deploy via Helm/Kubectl)
+Retrieve the raw Kubeconfig file content to allow GitHub Actions to connect to your cluster:
+```bash
+# Fetch credentials into local kubeconfig
+az aks get-credentials --resource-group <your-resource-group> --name <your-aks-cluster-name>
+
+# Output the config content
+cat ~/.kube/config
+```
+* Add `AKS_KUBECONFIG` (Paste the **entire** output of the `cat` command, starting from `apiVersion: v1...`).
