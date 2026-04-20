@@ -1,0 +1,36 @@
+# Cấu hình riêng cho Grafana bên trong Stack
+grafana:
+  enabled: true
+  
+  # Cấu hình Ingress
+  ingress:
+    enabled: true
+    ingressClassName: nginx  # Khai báo sử dụng Nginx Ingress Controller của bạn
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+    hosts:
+      - grafana.thltunneling.dpdns.org  # Tên miền phụ của bạn
+    
+    path: /
+
+  # Tùy chọn: Cấu hình Grafana biết tên miền chính thức của nó
+  # Giúp các đường link trong email/alert không bị sai
+  grafana.ini:
+    server:
+      domain: grafana.thltunneling.dpdns.org
+      root_url: "%(protocol)s://%(domain)s/"
+      serve_from_sub_path: false
+
+# Bạn có thể tắt bớt các thành phần không cần thiết để tiết kiệm tài nguyên Student Plan
+prometheus:
+  prometheusSpec:
+    retention: 2d # Chỉ giữ dữ liệu trong 2 ngày để tránh đầy ổ cứng
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 2Gi # Cấp 2GB là đủ cho môi trường dev
