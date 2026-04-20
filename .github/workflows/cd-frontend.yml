@@ -1,53 +1,47 @@
-name: Deploy Frontend
+name: Deploy Frontend to Azure AKS
 
 on:
   push:
     branches: [ "main" ]
     paths:
-      - 'client/**'  # <--- QUAN TRỌNG: Chỉ chạy khi sửa code trong folder frontend
+      - 'client/**'
 
 env:
-  PROJECT_ID: sapient-depot-482908-d3
-  CLUSTER_NAME: pern-ecommerce-cluster
-  GAR_LOCATION: asia-southeast1
-  REPOSITORY: docker-registry
-  IMAGE: pern-ecommerce-client      # Đặt tên image riêng cho frontend
-  DEPLOYMENT: frontend # Tên Deployment K8s của frontend
-  CONTAINER: nginx # Tên container trong Pod frontend
-  WWORKLOAD_IDENTITY_PROVIDER: projects/926599606710/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+  ACR_NAME: pernecommerceacrdevregistry
+  CLUSTER_NAME: pernecommerce-aks-dev
+  RESOURCE_GROUP: pernecommerce-rg
+  NAMESPACE: pernecommerce-dev
+  IMAGE: pern-ecommerce-client
+  DEPLOYMENT: frontend
+  CONTAINER: web                         # Tên container Frontend
 
 jobs:
   build-push-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: 'read'
-      id-token: 'write'
-
     steps:
       - uses: actions/checkout@v4
 
-      - id: auth
-        uses: 'google-github-actions/auth@v2'
+      # 1. Đăng nhập trực tiếp vào ACR bằng Admin User
+      - name: Docker Login to ACR
+        uses: azure/docker-login@v1
         with:
-          workload_identity_provider: ${{ env.WWORKLOAD_IDENTITY_PROVIDER }}
-          service_account: 'github-actions@${{ env.PROJECT_ID }}.iam.gserviceaccount.com'
+          login-server: ${{ env.ACR_NAME }}.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Docker Auth
-        run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
-
-      # BƯỚC QUAN TRỌNG: Build Docker
-      # Lưu ý context: ./frontend (Chỉ build trong thư mục con)
       - name: Build and Push Frontend
-        run: |-
-          docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ github.sha }}" ./client
-          docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ github.sha }}"
+        run: |
+          IMAGE_TAG="${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE }}:${{ github.sha }}"
+          docker build -t $IMAGE_TAG ./client
+          docker push $IMAGE_TAG
 
-      - uses: google-github-actions/get-gke-credentials@v2
+      - name: Get AKS Credentials
+        uses: azure/aks-set-context@v3
         with:
-          cluster_name: ${{ env.CLUSTER_NAME }}
-          location: ${{ env.GAR_LOCATION }}
+          resource-group: ${{ env.RESOURCE_GROUP }}
+          cluster-name: ${{ env.CLUSTER_NAME }}
 
-      - name: Deploy to GKE
-        run: |-
-          kubectl set image deployment/${{ env.DEPLOYMENT }} ${{ env.CONTAINER }}=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ github.sha }}
-          kubectl rollout status deployment/${{ env.DEPLOYMENT }}
+      - name: Deploy to AKS
+        run: |
+          kubectl set image deployment/${{ env.DEPLOYMENT }} ${{ env.CONTAINER }}=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE }}:${{ github.sha }} -n ${{ env.NAMESPACE }}
+          kubectl rollout status deployment/${{ env.DEPLOYMENT }} -n ${{ env.NAMESPACE }}

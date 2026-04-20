@@ -1,53 +1,49 @@
-name: Deploy Backend
+name: Deploy Backend to Azure AKS
 
 on:
   push:
     branches: [ "main" ]
     paths:
-      - 'server/**'  # <--- QUAN TRỌNG: Chỉ chạy khi sửa code trong folder backend
+      - 'server/**'
 
 env:
-  PROJECT_ID: sapient-depot-482908-d3
-  CLUSTER_NAME: pern-ecommerce-cluster
-  GAR_LOCATION: asia-southeast1
-  REPOSITORY: docker-registry
-  IMAGE: pern-ecommerce-server      # Đặt tên image riêng cho backend
-  DEPLOYMENT: backend # Tên Deployment K8s của backend
-  CONTAINER: api-server # Tên container trong Pod backend
-  WWORKLOAD_IDENTITY_PROVIDER: projects/926599606710/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+  ACR_NAME: pernecommerceacrdevregistry
+  IMAGE: pern-ecommerce-server
+  NAMESPACE: pernecommerce-dev
 
 jobs:
   build-push-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: 'read'
-      id-token: 'write'
-
     steps:
       - uses: actions/checkout@v4
 
-      - id: auth
-        uses: 'google-github-actions/auth@v2'
+      # 1. Đăng nhập trực tiếp vào ACR bằng Admin User
+      - name: Docker Login to ACR
+        uses: azure/docker-login@v1
         with:
-          workload_identity_provider: ${{ env.WWORKLOAD_IDENTITY_PROVIDER }}
-          service_account: 'github-actions@${{ env.PROJECT_ID }}.iam.gserviceaccount.com'
+          login-server: ${{ env.ACR_NAME }}.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Docker Auth
-        run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
-
-      # BƯỚC QUAN TRỌNG: Build Docker
-      # Lưu ý context: ./server (Chỉ build trong thư mục con)
+      # 2. Build và Push Image
       - name: Build and Push Backend
-        run: |-
-          docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ github.sha }}" ./server
-          docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ github.sha }}"
+        run: |
+          IMAGE_TAG="${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE }}:${{ github.sha }}"
+          docker build -t $IMAGE_TAG ./server
+          docker push $IMAGE_TAG
 
-      - uses: google-github-actions/get-gke-credentials@v2
+      # 3. Nạp Kubeconfig để nối với AKS
+      - name: Set up Kubeconfig
+        uses: azure/k8s-set-context@v3
         with:
-          cluster_name: ${{ env.CLUSTER_NAME }}
-          location: ${{ env.GAR_LOCATION }}
+          method: kubeconfig
+          kubeconfig: ${{ secrets.AKS_KUBECONFIG }}
 
-      - name: Deploy to GKE
-        run: |-
-          kubectl set image deployment/${{ env.DEPLOYMENT }} ${{ env.CONTAINER }}=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ github.sha }}
-          kubectl rollout status deployment/${{ env.DEPLOYMENT }}
+      # 4. Deploy bằng Helm (Best Practice)
+      - name: Deploy to AKS using Helm
+        run: |
+          helm upgrade pernecommerce ./helm/charts/azure \
+            -f ./helm/environments/azure/values-dev.yaml \
+            --set pern-ecommerce-app.backend.image.tag=${{ github.sha }} \
+            -n ${{ env.NAMESPACE }} \
+            --reuse-values
