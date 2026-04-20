@@ -1,9 +1,9 @@
 // File: server/helpers/hashPassword.test.js
 const { hashPassword, comparePassword } = require('./hashPassword');
 
-describe('Unit Test: Hàm hashPassword và comparePassword', () => {
+describe('Unit Test: hashPassword and comparePassword', () => {
   
-  it('Phải mã hóa mật khẩu thành một chuỗi (hash) khác với mật khẩu gốc', async () => {
+  it('Should hash a password into a different string', async () => {
     const rawPassword = 'mySuperSecretPassword';
     const hashedPassword = await hashPassword(rawPassword);
 
@@ -12,7 +12,7 @@ describe('Unit Test: Hàm hashPassword và comparePassword', () => {
     expect(typeof hashedPassword).toBe('string');
   });
 
-  it('Phải trả về true khi so sánh đúng mật khẩu gốc với chuỗi hash', async () => {
+  it('Should return true when comparing the correct original password with its hash', async () => {
     const rawPassword = 'mySuperSecretPassword';
     const hashedPassword = await hashPassword(rawPassword);
     
@@ -20,7 +20,7 @@ describe('Unit Test: Hàm hashPassword và comparePassword', () => {
     expect(isMatch).toBe(true);
   });
 
-  it('Phải trả về false khi so sánh sai mật khẩu', async () => {
+  it('Should return false when comparing an incorrect password with its hash', async () => {
     const rawPassword = 'mySuperSecretPassword';
     const wrongPassword = 'wrongPassword123';
     const hashedPassword = await hashPassword(rawPassword);
