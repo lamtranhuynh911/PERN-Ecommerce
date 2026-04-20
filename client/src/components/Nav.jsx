@@ -13,7 +13,7 @@ const Nav = () => {
   return (
     <nav className="flex items-center justify-between px-2 lg:px-36 py-2 shadow-lg fixed w-full bg-white top-0 z-10">
       <Link to="/" className="text-gray-700 text-2xl font-bold dark:text-gray-400">
-        <h1>PERN Store TESTING CI/CD 3rd time</h1>
+        <h1>PERN Store</h1>
       </Link>
       <ul className="flex space-x-4">
         {!isLoggedIn && (
