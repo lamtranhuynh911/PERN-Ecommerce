@@ -1,8 +1,32 @@
 
 # PERN STORE
+![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/kubernetes-326ce5.svg?&style=for-the-badge&logo=kubernetes&logoColor=white)
+![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=Prometheus&logoColor=white)
+![Grafana](https://img.shields.io/badge/grafana-%23F46800.svg?style=for-the-badge&logo=grafana&logoColor=white)
 
 This is a complete e-commerce system built with the PERN Stack (PostgreSQL, Express, React, Node.js). 
 However, the main focus of this repository is DevOps and Infrastructure. It demonstrates how to automate CI/CD pipelines, use Infrastructure as Code (IaC), and deploy applications across Multiple Clouds (GCP and Azure) using Kubernetes.
+
+## Directory Structure
+
+```text
+PERN-Ecommerce
+ |- .github/workflows    # Automated CI/CD Pipelines (GitHub Actions)
+ |- client               # Frontend Source Code (React.js, Vite, Tailwind)
+ |- server               # Backend API (Node.js, Express, Jest) & Swagger Docs
+ |- supabase             # Database Configurations & Migrations
+ |- helm                 # Kubernetes Deployment Configurations (Helm Charts)
+ |- k8s                  # Raw Kubernetes Manifests
+ |- terraform-azure      # Infrastructure as Code (IaC) for Azure
+ |- terraform-gcp        # Infrastructure as Code (IaC) for GCP (Fallback)
+ |- docker-compose*.yml  # Local Environment Setups (Dev & Prod)
+ |- Makefile             # Automation Shortcuts (Docker Build & Push)
+```
 
 ## Screenshots
 
@@ -60,6 +84,10 @@ Built a fully automated CI/CD pipeline using GitHub Actions to ensure code quali
 
 * Managed Kubernetes deployments using Helm. Designed the charts using a smart Parent-Child structure:
 Core Chart: Contains the main app resources (Deployment, Service, HPA) that work on any cloud. Wrapper Charts (Azure/GCP): Contain cloud-specific resources like Ingress Controllers and Managed Identities. Separated environment configurations cleanly into files like values-dev.yaml and values-prod.yaml.
+
+## Monitoring
+
+
 
 ## Security & Secret Management
 
@@ -199,6 +227,27 @@ With the infrastructure ready and images pushed to ACR, use Helm to deploy the a
      --namespace pernecommerce-dev \
      --create-namespace
    ```
+3. Deploy the monitoring stack:
+
+   Add the Prometheus Helm repository:
+   ```bash
+      helm repo add prometheus-community [https://prometheus-community.github.io/helm-charts[(https://prometheus-community.github.io/helm-charts)
+      helm repo update
+   ```
+
+   Deploy via Helm:
+   ```bash
+      helm upgrade --install kube-prom prometheus-community/kube-prometheus-stack \
+      --namespace monitoring \
+      --create-namespace \
+      -f values-monitoring.yaml
+   ```
+
+   Retrieve the Auto-generated Grafana Admin Password:
+   ```bash
+      kubectl get secret --namespace monitoring kube-prom-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+   ```
+
 
 ### Setting up GitHub Secrets for CI/CD
 
@@ -228,3 +277,6 @@ az aks get-credentials --resource-group <your-resource-group> --name <your-aks-c
 cat ~/.kube/config
 ```
 * Add `AKS_KUBECONFIG` (Paste the **entire** output of the `cat` command, starting from `apiVersion: v1...`).
+
+
+

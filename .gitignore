@@ -8,3 +8,4 @@ client/public/sitemap.xml
 .terraform/
 .terraform.lock.hcl
 .terraform.tfstate
+k8s
