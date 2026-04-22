@@ -89,6 +89,12 @@ Core Chart: Contains the main app resources (Deployment, Service, HPA) that work
 
 Implemented a robust, enterprise-grade monitoring stack using the `kube-prometheus-stack` Helm chart. It provides real-time observability into the Kubernetes cluster's health, pod resource consumption (CPU/Memory), and application-level metrics.
 
+<img width="3465" height="1971" alt="Screenshot from 2026-04-22 13-17-53" src="https://github.com/user-attachments/assets/fa1b98b0-a62c-4b69-aa50-fd2a41dae9d0" />
+
+<img width="3465" height="1971" alt="Screenshot from 2026-04-22 13-22-16" src="https://github.com/user-attachments/assets/7b779848-f144-4069-b740-2eeb790ffe42" />
+
+
+
 ## Security & Secret Management
 
 * No Passwords in Code: Used the External Secrets Operator (ESO) to securely pull database passwords and API keys from Azure Key Vault and GCP Secret Manager directly into Kubernetes Pods.
