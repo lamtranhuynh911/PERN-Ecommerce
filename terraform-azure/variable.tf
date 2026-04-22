@@ -12,7 +12,6 @@ variable "environment" {
   description = "The environment name (e.g., dev, staging, prod)"
   type        = string
   
-  # Best Practice: Ensure only valid environments are deployed
   validation {
     condition     = contains(["dev", "staging", "prod"], var.environment)
     error_message = "Environment must be one of: dev, staging, prod."

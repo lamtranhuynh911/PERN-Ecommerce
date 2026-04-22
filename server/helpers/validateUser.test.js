@@ -2,13 +2,11 @@
 const validateUser = require("./validateUser");
 
 describe("Unit Test: validateUser", () => {
-  //Trường hợp đúng (Happy Path)
   it("Should return true when email and password are valid", () => {
     const result = validateUser("test@email.com", "123456");
     expect(result).toBe(true);
   });
 
-  //Các trường hợp sai (Edge Cases)
   it("Should return false when email is empty", () => {
     const result = validateUser("", "123456");
     expect(result).toBe(false);

@@ -3,16 +3,9 @@ kind: Ingress
 metadata:
   name: pern-ingress
   annotations:
-    # 1. Báo cho GKE biết dùng bộ điều khiển nào
     kubernetes.io/ingress.class: "gce"
-    
-    # 2. Gắn cái IP tĩnh đã tạo ở Bước 1
     kubernetes.io/ingress.global-static-ip-name: "pern-ingress-ip"
-    
-    # 3. Gắn chứng chỉ SSL đã tạo ở Bước 2
     networking.gke.io/managed-certificates: "pern-ssl-cert-v3"
-    
-    # 4. (Tùy chọn) Ép buộc chuyển HTTP sang HTTPS
     kubernetes.io/ingress.allow-http: "false"
 
 spec:
@@ -20,22 +13,18 @@ spec:
   - host: ecommerce.thltunneling.dpdns.org
   - http:
       paths:
-      # --- LUẬT 1: BACKEND (Ưu tiên đường dẫn dài trước) ---
-      # Mọi request bắt đầu bằng /api sẽ vào Backend
       - path: /api
         pathType: Prefix
         backend:
           service:
-            name: backend-svc # Tên Service Backend
+            name: backend-svc
             port:
-              number: 80      # Port của Service Backend
+              number: 80    
       
-      # --- LUẬT 2: FRONTEND (Hứng tất cả còn lại) ---
-      # Mọi request khác sẽ vào Frontend
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: frontend-svc # Tên Service Frontend
+            name: frontend-svc
             port:
-              number: 80       # Port của Service Frontend (Dù targetPort là 8080)
+              number: 80

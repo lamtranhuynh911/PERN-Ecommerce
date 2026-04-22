@@ -2,76 +2,64 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend
-  namespace: default # Hoặc namespace bạn chọn
+  namespace: default 
   labels:
-    # --- LABELS QUẢN LÝ (Standard) ---
     app.kubernetes.io/name: ecommerce-api
     app.kubernetes.io/part-of: pern-shop
     app.kubernetes.io/component: backend
     app.kubernetes.io/version: "1.0.0"
 spec:
-  replicas: 1 # Bắt đầu với 2 replicas để đảm bảo High Availability (HA)
+  replicas: 1
   selector:
     matchLabels:
-      # --- SELECTOR (Phải khớp với Pod Template bên dưới) ---
       app.kubernetes.io/name: ecommerce-api
       app.kubernetes.io/component: backend
   template:
     metadata:
       labels:
-        # --- LABELS CỦA POD ---
         app.kubernetes.io/name: ecommerce-api
         app.kubernetes.io/component: backend
         app.kubernetes.io/part-of: pern-shop
     spec:
-      # Bảo mật: Chạy container với quyền User thường (không phải Root)
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 2000
-      
-      # (Tuỳ chọn) Dùng nếu bạn đã setup Workload Identity để pull image hoặc access Secret Manager
-      # serviceAccountName: backend-ksa 
 
       containers:
         - name: api-server
-          # Thay đổi đường dẫn Image của bạn ở đây
-          # Image tag 'latest' chỉ nên dùng trong giai đoạn phát triển (development)
           image: asia-southeast1-docker.pkg.dev/sapient-depot-482908-d3/docker-registry/pern-ecommerce-server:latest
           imagePullPolicy: Always
           
           ports:
             - name: http
-              containerPort: 9000 # Port mà ứng dụng Node.js của bạn đang lắng nghe
+              containerPort: 9000 
               protocol: TCP
 
-          # --- QUẢN LÝ TÀI NGUYÊN (Bắt buộc cho GKE Autopilot) ---
           resources:
             requests:
-              cpu: "150m"      # 0.25 vCPU (Đủ cho Node.js start)
-              memory: "256Mi"  # Đủ để không bị OOM khi load thư viện
+              cpu: "150m"    
+              memory: "256Mi"  
             limits:
-              cpu: "500m"      # Giới hạn trần (Autopilot có thể tự điều chỉnh cái này bằng requests)
-              memory: "256Mi"  # Best Practice: Giữ Limit = Request để đạt QoS Class "Guaranteed"
+              cpu: "500m"      
+              memory: "256Mi"  
 
-          # --- BIẾN MÔI TRƯỜNG ---
           env:
             - name: PORT
               value: "9000"
             - name: NODE_ENV
               value: "production"
-            # Inject Secret kết nối Supabase (Đã tạo ở Phần 3)
             - name: POSTGRES_HOST
               valueFrom:
                 secretKeyRef:
-                  name: supabase-credentials # <--- Dùng chung 1 Secret
-                  key: host                  # <--- Lấy ngăn 'host'
+                  name: supabase-credentials 
+                  key: host                  
             
             - name: POSTGRES_PORT
               valueFrom:
                 secretKeyRef:
-                  name: supabase-credentials # <--- Dùng chung 1 Secret
-                  key: port                  # <--- Lấy ngăn 'port'
+                  name: supabase-credentials
+                  key: port                 
 
             - name: POSTGRES_DB
               valueFrom:
@@ -94,14 +82,14 @@ spec:
             - name: SMTP_FROM
               valueFrom:
                 secretKeyRef:
-                  name: supabase-credentials # <--- Dùng chung 1 Secret
-                  key: smtp-from                  # <--- Lấy ngăn 'smtp_from'
+                  name: supabase-credentials 
+                  key: smtp-from                 
             
             - name: SMTP_USER
               valueFrom:
                 secretKeyRef:
-                  name: supabase-credentials # <--- Dùng chung 1 Secret
-                  key: smtp-user                  # <--- Lấy ngăn 'smtp_user'
+                  name: supabase-credentials 
+                  key: smtp-user                
 
             - name: STRIPE_SECRET_KEY
               valueFrom:
@@ -130,14 +118,14 @@ spec:
             - name: CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: supabase-credentials # <--- Dùng chung 1 Secret
-                  key: client-id                  # <--- Lấy ngăn 'client-id'
+                  name: supabase-credentials 
+                  key: client-id                
             
             - name: CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: supabase-credentials # <--- Dùng chung 1 Secret
-                  key: client-secret                  # <--- Lấy ngăn 'client-secret'
+                  name: supabase-credentials 
+                  key: client-secret                
 
             - name: REFRESH_TOKEN
               valueFrom:
@@ -157,18 +145,15 @@ spec:
                   name: supabase-credentials
                   key: jwt-refresh-secret                      
 
-          # --- HEALTH CHECKS (Đảm bảo độ tin cậy) ---
-          # 1. App đã sẵn sàng nhận traffic chưa?
           readinessProbe:
             httpGet:
-              path: /health # Route bạn đã code trong Express
+              path: /health 
               port: http
             initialDelaySeconds: 5
             periodSeconds: 10
             successThreshold: 1
             failureThreshold: 3
 
-          # 2. App còn sống hay đã treo?
           livenessProbe:
             httpGet:
               path: /health

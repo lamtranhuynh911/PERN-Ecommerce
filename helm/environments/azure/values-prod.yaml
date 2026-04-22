@@ -1,6 +1,4 @@
 # Azure Production Environment Values
-# Override root values for prod environment on Azure
-# Matches Terraform Azure Prod configuration
 
 global:
   domain: "ecommerce.thltunneling.dpdns.org"
@@ -21,7 +19,7 @@ backend:
   image:
     repository: "pernecommerceacrprod.azurecr.io/pern-ecommerce-server"
     pullPolicy: IfNotPresent
-    tag: "v1.0.0"  # Use specific version in production
+    tag: "v1.0.0" 
 
 frontend:
   replicaCount: 3
@@ -35,22 +33,22 @@ frontend:
   image:
     repository: "pernecommerceacrprod.azurecr.io/pern-ecommerce-client"
     pullPolicy: IfNotPresent
-    tag: "v1.0.0"  # Use specific version in production
+    tag: "v1.0.0"  
 
 azure:
   projectPrefix: "pernecommerce"
   environment: "prod"
   location: "southeastasia"
-  resourceGroup: "pernecommerce-rg" # Terraform managed
+  resourceGroup: "pernecommerce-rg" 
   cluster:
-    name: "pernecommerce-aks-prod" # Terraform: pernecommerce-aks-prod
+    name: "pernecommerce-aks-prod" 
     dnsPrefix: "pernecommerce-k8s"
     location: "southeastasia"
     resourceGroup: "pernecommerce-rg"
   acr:
-    loginServer: "pernecommerceacrprod.azurecr.io" # Terraform: pernecommerceacrprod
+    loginServer: "pernecommerceacrprod.azurecr.io" 
   keyVault:
-    name: "pernecommerce-kv-prod" # Terraform managed
+    name: "pernecommerce-kv-prod"
     resourceGroup: "pernecommerce-rg"
     location: "southeastasia"
   managedIdentity:

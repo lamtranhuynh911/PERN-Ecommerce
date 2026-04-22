@@ -48,7 +48,7 @@ azure:
     resourceGroup: "pernecommerce-rg"
 
 # ==========================================
-# CẤU HÌNH CHO INGRESS
+# INGRESS
 # ==========================================
 ingress:
   enabled: true
@@ -79,8 +79,7 @@ ingress:
     secretName: "pernecommerce-tls-cert"
 
 # ==========================================
-# KHỞI TẠO MẶC ĐỊNH CHO EXTERNAL SECRETS
-# (Giữ chỗ để tránh lỗi nil pointer)
+# EXTERNAL SECRETS
 # ==========================================
 secrets:
   externalSecrets:
@@ -99,7 +98,7 @@ healthChecks:
   enabled: true
   path: "/health"
 
-# Monitoring (Azure Monitor)
+# Monitoring
 monitoring:
   enabled: true
   appInsights:

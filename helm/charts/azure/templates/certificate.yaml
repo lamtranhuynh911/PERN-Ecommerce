@@ -10,8 +10,8 @@ metadata:
     app.kubernetes.io/part-of: pern-shop
 type: kubernetes.io/tls
 data:
-  tls.crt: ""  # Base64-encoded self-signed certificate (replace with real cert)
-  tls.key: ""  # Base64-encoded private key (replace with real key)
+  tls.crt: "" 
+  tls.key: ""
 ---
 # Note: For production, use cert-manager with Let's Encrypt
 # This is a placeholder certificate resource

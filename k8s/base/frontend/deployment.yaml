@@ -2,38 +2,31 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend
-  namespace: default # Hoặc namespace bạn chọn
+  namespace: default
   labels:
-    # --- LABELS QUẢN LÝ (Standard) ---
     app.kubernetes.io/name: ecommerce-frontend
     app.kubernetes.io/part-of: pern-shop
     app.kubernetes.io/component: frontend
     app.kubernetes.io/version: "1.0.0"
 spec:
-  replicas: 1 # Frontend thường không cần nhiều replicas
+  replicas: 1 
   selector:
     matchLabels:
-      # --- SELECTOR (Phải khớp với Pod Template bên dưới) ---
       app.kubernetes.io/name: ecommerce-frontend
       app.kubernetes.io/component: frontend
   template:
     metadata:
       labels:
-        # --- LABELS CỦA POD ---
         app.kubernetes.io/name: ecommerce-frontend
         app.kubernetes.io/component: frontend
         app.kubernetes.io/part-of: pern-shop
     spec:
-      # Bảo mật: Chạy container với quyền User thường (không phải Root)
-      # Dooi với Nginx, thường dùng User 101
       securityContext:
         runAsUser: 101
         runAsGroup: 101
         fsGroup: 101
       containers:
         - name: nginx
-          # Thay đổi đường dẫn Image của bạn ở đây
-          # Image tag 'latest' chỉ nên dùng trong giai đoạn phát triển (development)
           image: asia-southeast1-docker.pkg.dev/sapient-depot-482908-d3/docker-registry/pern-ecommerce-client:latest
           imagePullPolicy: Always # Luôn kéo bản mới nhất
           
@@ -43,17 +36,16 @@ spec:
                 
           ports:
             - name: http
-              containerPort: 8080 # Port mà Nginx lắng nghe
+              containerPort: 8080 
               protocol: TCP
 
-          # --- QUẢN LÝ TÀI NGUYÊN (Bắt buộc cho GKE Autopilot) ---
           resources:
             requests:
-              cpu: "100m"      # 0.1 vCPU (Đủ cho Nginx start)
-              memory: "128Mi"  # Đủ để không bị OOM khi load trang
+              cpu: "100m"  
+              memory: "128Mi"  
             limits:
-              cpu: "200m"      # Giới hạn trần (Autopilot có thể tự điều chỉnh cái này bằng requests)
-              memory: "256Mi"  # Best Practice: Giữ Limit = Request để đạt QoS Class "Guaranteed"
+              cpu: "200m"      
+              memory: "256Mi"  
 
           readinessProbe:
             httpGet:

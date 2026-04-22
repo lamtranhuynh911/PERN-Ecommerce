@@ -1,4 +1,3 @@
-# Cài đặt Nginx Ingress Controller
 resource "helm_release" "ingress_nginx" {
   name             = "ingress-nginx"
   repository       = "https://kubernetes.github.io/ingress-nginx"
@@ -12,7 +11,6 @@ resource "helm_release" "ingress_nginx" {
   }
 }
 
-# Cài đặt Cert-Manager (Quản lý chứng chỉ SSL)
 resource "helm_release" "cert_manager" {
   name             = "cert-manager"
   repository       = "https://charts.jetstack.io"
@@ -27,16 +25,14 @@ resource "helm_release" "cert_manager" {
   }
 }
 
-# Cài đặt External Secrets Operator (Kẻ đi lấy mật khẩu từ Azure Key Vault)
 resource "helm_release" "external_secrets" {
   name             = "external-secrets"
   repository       = "https://charts.external-secrets.io"
   chart            = "external-secrets"
   namespace        = "external-secrets"
   create_namespace = true
-  version          = "0.9.11" # Phiên bản ổn định hiện tại
+  version          = "0.9.11"
 
-  # Lệnh BẮT BUỘC để K8s học thêm các từ vựng CRD mới (SecretStore, ExternalSecret)
   set {
     name  = "installCRDs"
     value = "true"

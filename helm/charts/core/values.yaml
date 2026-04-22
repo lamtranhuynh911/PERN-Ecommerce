@@ -1,6 +1,3 @@
-# Core Chart Values - Platform-agnostic configuration
-# These values are inherited by parent chart
-
 namespace: "pernecommerce-dev"
 
 backend:

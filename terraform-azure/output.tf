@@ -15,7 +15,6 @@ output "aks_cluster_name" {
   value = module.aks.kubernetes_cluster_name
 }
 
-# Important for CI/CD: This is needed to connect to the cluster
 output "aks_kube_config" {
   value     = module.aks.kube_config
   sensitive = true

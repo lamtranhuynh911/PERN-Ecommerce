@@ -1,21 +1,19 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-svc # Tên này sẽ thành DNS nội bộ: backend-svc.default.svc.cluster.local
+  name: backend-svc 
   labels:
     app.kubernetes.io/name: ecommerce-api
     app.kubernetes.io/component: backend
   annotations:
-    cloud.google.com/backend-config: '{"default":"backend-health-check"}' # Liên kết BackendConfig
+    cloud.google.com/backend-config: '{"default":"backend-health-check"}' 
 spec:
-  type: ClusterIP # Chỉ cho phép truy cập nội bộ (An toàn hơn LoadBalancer)
+  type: ClusterIP 
   selector:
-    # --- CẦU NỐI ---
-    # Phải KHỚP HOÀN TOÀN với labels của Pod trong Deployment ở trên
     app.kubernetes.io/name: ecommerce-api
     app.kubernetes.io/component: backend
   ports:
     - name: http
-      port: 80         # Port của Service (Frontend gọi vào port này)
-      targetPort: 9000 # Port của Container (Backend mở port này)
+      port: 80        
+      targetPort: 9000 
       protocol: TCP

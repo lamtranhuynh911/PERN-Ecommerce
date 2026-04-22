@@ -1,5 +1,4 @@
 # GCP Production Environment Values
-# Override root values for prod environment on GCP
 
 global:
   domain: "ecommerce.example.com"
@@ -18,7 +17,7 @@ backend:
       cpu: "1000m"
       memory: "1Gi"
   image:
-    tag: "v1.0.0"  # Use specific version in production
+    tag: "v1.0.0" 
 
 frontend:
   replicaCount: 3
@@ -30,7 +29,7 @@ frontend:
       cpu: "500m"
       memory: "512Mi"
   image:
-    tag: "v1.0.0"  # Use specific version in production
+    tag: "v1.0.0"
 
 gcp:
   projectId: "your-prod-project-id"

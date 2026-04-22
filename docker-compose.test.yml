@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # This is an ephemeral test database
   postgres-test:
-    image: postgres:15-alpine # Supabase uses Postgres 15
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER: testuser
       POSTGRES_PASSWORD: testpassword

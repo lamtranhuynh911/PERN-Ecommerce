@@ -2,10 +2,10 @@ apiVersion: v1
 kind: ResourceQuota
 metadata:
   name: ns-resource-quota
-  namespace: pernecommerce-dev # Tên namespace của bạn
+  namespace: pernecommerce-dev
 spec:
   hard:
-    requests.cpu: "300m"      # Đảm bảo đủ cho Frontend (50m) + Backend (100m)
+    requests.cpu: "300m"      
     requests.memory: "512Mi"  
-    limits.cpu: "1"           # Tối đa 1 Core CPU cho toàn bộ Namespace
-    limits.memory: "1Gi"      # Tối đa 1 GB RAM cho toàn bộ Namespace
+    limits.cpu: "1"           
+    limits.memory: "1Gi"     

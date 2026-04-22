@@ -27,7 +27,6 @@ spec:
         app.kubernetes.io/component: frontend
         app.kubernetes.io/part-of: pern-shop
     spec:
-      # Đã gỡ bỏ securityContext ở mức Pod để Image tự quyết định quyền
       serviceAccountName: frontend
       
       containers:
@@ -75,9 +74,6 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 2
-          
-          # Đã gỡ bỏ securityContext ở mức Container (không drop capabilities nữa)
-          # Nhờ đó Nginx có quyền chown thư mục /tmp/proxy_temp
           
           volumeMounts:
             - name: tmp

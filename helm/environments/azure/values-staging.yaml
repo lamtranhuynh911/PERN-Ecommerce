@@ -1,6 +1,4 @@
 # Azure Staging Environment Values
-# Override root values for staging environment on Azure
-# Matches Terraform Azure Staging configuration
 
 global:
   domain: "staging-ecommerce.thltunneling.dpdns.org"
@@ -41,16 +39,16 @@ azure:
   projectPrefix: "pernecommerce"
   environment: "staging"
   location: "southeastasia"
-  resourceGroup: "pernecommerce-rg" # Terraform managed
+  resourceGroup: "pernecommerce-rg" 
   cluster:
-    name: "pernecommerce-aks-staging" # Terraform: pernecommerce-aks-staging
+    name: "pernecommerce-aks-staging" 
     dnsPrefix: "pernecommerce-k8s"
     location: "southeastasia"
     resourceGroup: "pernecommerce-rg"
   acr:
-    loginServer: "pernecommerceacrstaging.azurecr.io" # Terraform: pernecommerceacrstaging
+    loginServer: "pernecommerceacrstaging.azurecr.io" 
   keyVault:
-    name: "pernecommerce-kv-staging" # Terraform managed
+    name: "pernecommerce-kv-staging" 
     resourceGroup: "pernecommerce-rg"
     location: "southeastasia"
   managedIdentity:
@@ -58,5 +56,4 @@ azure:
     resourceGroup: "pernecommerce-rg"
 
 config:
-  # Staging-specific configurations
   logLevel: "info"

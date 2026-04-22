@@ -12,7 +12,7 @@ terraform {
   }
     backend "azurerm" {
     resource_group_name  = "tfstate-rg"
-    storage_account_name = "tfstatepernlam911" # Tên bạn vừa tạo thành công
+    storage_account_name = "tfstatepernlam911" 
     container_name       = "infrastructure"
     key                  = "k8s-components.tfstate"
   }
@@ -23,13 +23,11 @@ provider "azurerm" {
   features {}
 }
 
-# ĐI TÌM CỤM AKS ĐÃ ĐƯỢC TẠO RA TỪ FOLDER 01
 data "azurerm_kubernetes_cluster" "aks" {
   name                = var.cluster_name
   resource_group_name = var.resource_group_name
 }
 
-# CẤU HÌNH HELM BẰNG THÔNG TIN LẤY ĐƯỢC
 provider "helm" {
   kubernetes {
     host                   = data.azurerm_kubernetes_cluster.aks.kube_config.0.host

@@ -1,5 +1,4 @@
 # GCP Development Environment Values
-# Override root values for dev environment on GCP
 
 global:
   domain: "dev-ecommerce.example.com"

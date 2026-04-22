@@ -1,4 +1,3 @@
-# Các giá trị của riêng Azure (Nằm ngoài cùng)
 global:
   domain: "ecommerce.thltunneling.dpdns.org"
   environment: "dev"
@@ -10,7 +9,6 @@ azure:
   projectPrefix: "pernecommerce"
   keyVault:
     name: "pernecommercekvdev"
-  # ... (giữ nguyên cấu hình azure cũ của bạn ở đây) ...
 
 secrets:
   externalSecrets:
@@ -42,7 +40,6 @@ secrets:
         key: "stripe-secret-key"
         
       # --- OAuth & Google Secrets ---
-      # (Có vẻ code đang dùng 2 bộ biến cho Google OAuth, ta cứ kéo đủ về)
       - name: "oauth-client-id"
         key: "oauth-client-id"
       - name: "oauth-client-secret"
@@ -62,14 +59,9 @@ secrets:
       - name: "jwt-refresh-secret"
         key: "jwt-refresh-secret"
 
-# ========================================================
-# CẤU HÌNH TRUYỀN XUỐNG CHART CON (LÕI)
-# Bắt buộc phải nằm dưới key 'pern-ecommerce-app'
-# ========================================================
 pern-ecommerce-app:
   backend:
     replicaCount: 1
-    # Bổ sung healthCheck để file deployment không bị lỗi nil pointer
     healthCheck:
       requestPath: "/health"
     resources:

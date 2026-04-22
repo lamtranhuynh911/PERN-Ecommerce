@@ -4,4 +4,4 @@ metadata:
   name: pern-ssl-cert-v3
 spec:
   domains:
-    - ecommerce.thltunneling.dpdns.org # <--- Thay bằng domain thật của bạn (VD: shop.toandev.com)
+    - ecommerce.thltunneling.dpdns.org

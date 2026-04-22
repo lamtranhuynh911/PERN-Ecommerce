@@ -1,4 +1,3 @@
-# Lấy thông tin tài khoản hiện tại
 data "azurerm_client_config" "current" {}
 
 module "base" {
@@ -8,7 +7,7 @@ module "base" {
   project_name   = var.project_prefix
 }
 
-# 3. Azure Container Registry (ACR) Module
+# Azure Container Registry (ACR) Module
 module "acr" {
   source              = "./modules/acr"
   
@@ -18,7 +17,7 @@ module "acr" {
   sku                 = "Basic"
 }
 
-# 4. Azure Kubernetes Service (AKS) Module
+# Azure Kubernetes Service (AKS) Module
 module "aks" {
   source              = "./modules/aks"
   
@@ -33,7 +32,7 @@ module "aks" {
   vm_size             = "Standard_B2s_v2" 
 }
 
-# 5. Azure Key Vault Module
+# Azure Key Vault Module
 module "keyvault" {
   source              = "./modules/keyvault"
   
@@ -41,7 +40,6 @@ module "keyvault" {
   resource_group_name = module.base.rg_name
   location            = module.base.rg_location
 }
-# Cấp quyền cho AKS đọc mật khẩu từ Key Vault
 resource "azurerm_key_vault_access_policy" "aks_kv_access" {
   key_vault_id = module.keyvault.keyvault_id
   tenant_id    = data.azurerm_client_config.current.tenant_id

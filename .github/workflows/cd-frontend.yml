@@ -13,7 +13,7 @@ env:
   NAMESPACE: pernecommerce-dev
   IMAGE: pern-ecommerce-client
   DEPLOYMENT: frontend
-  CONTAINER: web                         # Tên container Frontend
+  CONTAINER: web                   
 
 jobs:
   build-push-deploy:
@@ -21,7 +21,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1. Đăng nhập trực tiếp vào ACR bằng Admin User
       - name: Docker Login to ACR
         uses: azure/docker-login@v1
         with:
@@ -41,7 +40,6 @@ jobs:
           method: kubeconfig
           kubeconfig: ${{ secrets.AKS_KUBECONFIG }}
 
-      # 4. Deploy bằng Helm (Tránh lỗi đụng độ cấu hình)
       - name: Deploy to AKS using Helm
         run: |
           helm upgrade pernecommerce ./helm/charts/azure \

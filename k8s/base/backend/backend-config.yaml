@@ -9,5 +9,5 @@ spec:
     healthyThreshold: 1
     unhealthyThreshold: 3
     type: HTTP
-    requestPath: /health # <--- Chỉ định rõ route check sức khỏe
-    port: 9000           # Port container đang chạy
+    requestPath: /health 
+    port: 9000          

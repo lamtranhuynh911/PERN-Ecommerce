@@ -1,4 +1,3 @@
-# variables.tf
 # Define the project ID variable
 variable "project_id" {
   description = "The ID of your Google Cloud Project"
@@ -9,5 +8,5 @@ variable "project_id" {
 variable "region" {
   description = "The default compute region"
   type        = string
-  default     = "asia-southeast1" # Singapore region (change if needed)
+  default     = "asia-southeast1" 
 }

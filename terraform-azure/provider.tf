@@ -19,8 +19,8 @@ terraform {
   # Backend configuration to store state in Azure Blob Storage
   backend "azurerm" {
     resource_group_name  = "tfstate-rg"
-    storage_account_name = "tfstatepernlam911" # Tên bạn vừa tạo thành công
-    container_name       = "tfstate"           # Tên container bạn vừa tạo
+    storage_account_name = "tfstatepernlam911"
+    container_name       = "tfstate"          
     key                  = "dev.terraform.tfstate"
   }
 }
@@ -30,7 +30,6 @@ provider "azurerm" {
 }
 
 provider "kubernetes" {
-  # Lấy host và credentials từ chính resource AKS bạn vừa khai báo
   host                   = azurerm_kubernetes_cluster.pernecommerce-aks-dev.kube_config.0.host
   client_certificate     = base64decode(azurerm_kubernetes_cluster.pernecommerce-aks-dev.kube_config.0.client_certificate)
   client_key             = base64decode(azurerm_kubernetes_cluster.pernecommerce-aks-dev.kube_config.0.client_key)

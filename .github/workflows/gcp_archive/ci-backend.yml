@@ -15,9 +15,7 @@ on:
       - '.github/workflows/ci-backend.yml'
 
 jobs:
-  # ---------------------------------------------
-  # JOB 1: CHECK QUALITY FIRST (FAIL FAST)
-  # ---------------------------------------------
+  # JOB 1: CHECK QUALITY FIRST
   lint-backend:
     name: Backend Lint & Format
     runs-on: ubuntu-latest
@@ -44,13 +42,10 @@ jobs:
       - name: Run Static Code Analysis (ESLint)
         run: npm run lint
 
-  # ---------------------------------------------
-  # JOB 2: RUN UNIT TESTS (RUNS ONLY IF JOB 1 PASSES)
-  # ---------------------------------------------
+  # JOB 2: RUN UNIT TESTS
   test-backend:
     name: Backend Unit Tests
     runs-on: ubuntu-latest
-    # DEV-TIP: Ensures tests only run if linting is successful
     needs: [lint-backend] 
     defaults:
       run:

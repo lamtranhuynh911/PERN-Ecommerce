@@ -17,7 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1. Đăng nhập trực tiếp vào ACR bằng Admin User
       - name: Docker Login to ACR
         uses: azure/docker-login@v1
         with:
@@ -25,21 +24,18 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      # 2. Build và Push Image
       - name: Build and Push Backend
         run: |
           IMAGE_TAG="${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE }}:${{ github.sha }}"
           docker build -t $IMAGE_TAG ./server
           docker push $IMAGE_TAG
 
-      # 3. Nạp Kubeconfig để nối với AKS
       - name: Set up Kubeconfig
         uses: azure/k8s-set-context@v3
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.AKS_KUBECONFIG }}
 
-      # 4. Deploy bằng Helm (Best Practice)
       - name: Deploy to AKS using Helm
         run: |
           helm upgrade pernecommerce ./helm/charts/azure \

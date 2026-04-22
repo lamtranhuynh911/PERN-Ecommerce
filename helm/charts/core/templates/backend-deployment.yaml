@@ -56,7 +56,7 @@ spec:
               memory: {{ .Values.backend.resources.limits.memory }}
           
           # ==========================================
-          # KHỐI BIẾN MÔI TRƯỜNG ĐÃ ĐƯỢC GOM LẠI
+          # ENVIRONMENT VARIABLES
           # ==========================================
           env:
             - name: PORT
@@ -154,7 +154,7 @@ spec:
                 optional: true
           
           # ==========================================
-          # LIVENESS & READINESS ĐÃ ĐƯỢC ĐƯA VÀO CONTAINER
+          # LIVENESS & READINESS
           # ==========================================
           livenessProbe:
             httpGet:

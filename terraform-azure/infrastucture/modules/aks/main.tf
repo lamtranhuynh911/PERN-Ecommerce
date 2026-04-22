@@ -7,18 +7,17 @@ resource "azurerm_kubernetes_cluster" "aks" {
   default_node_pool {
     name       = "default"
     node_count = 1
-    vm_size    = "standard_b2as_v2" # Dòng máy ảo giá rẻ, phù hợp để test
+    vm_size    = "standard_b2as_v2"
   }
 
   identity {
-    type = "SystemAssigned" # Azure tự động tạo Service Principal quản lý cluster này
+    type = "SystemAssigned"
   }
 }
 
-# Cấp quyền cho AKS được phép kéo Image từ ACR
 resource "azurerm_role_assignment" "aks_to_acr" {
   principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
   role_definition_name             = "AcrPull"
-  scope                            = var.acr_id # Truyền ID của ACR từ module ACR sang
+  scope                            = var.acr_id
   skip_service_principal_aad_check = true
 }
