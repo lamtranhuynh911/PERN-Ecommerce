@@ -87,7 +87,7 @@ Core Chart: Contains the main app resources (Deployment, Service, HPA) that work
 
 ## Monitoring
 
-
+Implemented a robust, enterprise-grade monitoring stack using the `kube-prometheus-stack` Helm chart. It provides real-time observability into the Kubernetes cluster's health, pod resource consumption (CPU/Memory), and application-level metrics.
 
 ## Security & Secret Management
 
