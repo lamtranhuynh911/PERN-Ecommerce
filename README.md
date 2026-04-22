@@ -10,7 +10,7 @@
 ![Grafana](https://img.shields.io/badge/grafana-%23F46800.svg?style=for-the-badge&logo=grafana&logoColor=white)
 
 This is a complete e-commerce system built with the PERN Stack (PostgreSQL, Express, React, Node.js). 
-However, the main focus of this repository is DevOps and Infrastructure. It demonstrates how to automate CI/CD pipelines, use Infrastructure as Code (IaC), and deploy applications across Multiple Clouds (GCP and Azure) using Kubernetes.
+However, the main focus of this repository is DevOps and Infrastructure. It demonstrates how to automate CI/CD pipelines, use Infrastructure as Code (IaC), and deploy applications across Multiple Clouds (focusing on Azure) using Kubernetes.
 
 ## Directory Structure
 
@@ -18,12 +18,12 @@ However, the main focus of this repository is DevOps and Infrastructure. It demo
 PERN-Ecommerce
  |- .github/workflows    # Automated CI/CD Pipelines (GitHub Actions)
  |- client               # Frontend Source Code (React.js, Vite, Tailwind)
- |- server               # Backend API (Node.js, Express, Jest) & Swagger Docs
+ |- server               # Backend API (Node.js, Express, Jest)
  |- supabase             # Database Configurations & Migrations
  |- helm                 # Kubernetes Deployment Configurations (Helm Charts)
  |- k8s                  # Raw Kubernetes Manifests
  |- terraform-azure      # Infrastructure as Code (IaC) for Azure
- |- terraform-gcp        # Infrastructure as Code (IaC) for GCP (Fallback)
+ |- terraform-gcp        # Infrastructure as Code (IaC) for GCP (Archive)
  |- docker-compose*.yml  # Local Environment Setups (Dev & Prod)
  |- Makefile             # Automation Shortcuts (Docker Build & Push)
 ```
@@ -87,14 +87,13 @@ Core Chart: Contains the main app resources (Deployment, Service, HPA) that work
 
 ## Monitoring
 
-Implemented a robust, enterprise-grade monitoring stack using the `kube-prometheus-stack` Helm chart. It provides real-time observability into the Kubernetes cluster's health, pod resource consumption (CPU/Memory), and application-level metrics.
+Implemented a robust, enterprise-grade monitoring stack using the `kube-prometheus-stack` Helm chart. Providing real-time observability into the Kubernetes cluster's health, pod resource consumption (CPU/Memory), and application-level metrics.
 
 * Kubernetes / Compute Resources / Cluster.
 <img width="3465" height="1971" alt="Screenshot from 2026-04-22 13-17-53" src="https://github.com/user-attachments/assets/fa1b98b0-a62c-4b69-aa50-fd2a41dae9d0" />
 
 * Kubernetes / Compute Resources / Namespace (Pods)
 <img width="3465" height="1971" alt="Screenshot from 2026-04-22 13-22-16" src="https://github.com/user-attachments/assets/7b779848-f144-4069-b740-2eeb790ffe42" />
-
 
 
 ## Security & Secret Management
