@@ -12,10 +12,6 @@
 This is a complete e-commerce system built with the PERN Stack (PostgreSQL, Express, React, Node.js). 
 However, the main focus of this repository is DevOps and Infrastructure. It demonstrates how to automate CI/CD pipelines, use Infrastructure as Code (IaC), and deploy applications across Multiple Clouds (focusing on Azure) using Kubernetes.
 
-Project is live on: [ecommerce.thltunneling.dpdns.org](ecommerce.thltunneling.dpdns.org)
-
-Monitoring: [grafana.thltunneling.dpdns.org](grafana.thltunneling.dpdns.org) - username: guest | password: 123456
-
 ## Directory Structure
 
 ```text
